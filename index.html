@@ -6,6 +6,8 @@
     <title>F App - Super App Ecosystem</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -15,8 +17,11 @@
                             base: '#07111F',
                             deep: '#071A33'
                         },
-                        electric: '#1677FF',
-                        gold: '#FFD447'
+                        gold: {
+                            light: '#FFF8E7',
+                            card: 'rgba(255, 235, 190, 0.12)',
+                            accent: '#D4AF37'
+                        }
                     }
                 }
             }
@@ -32,22 +37,28 @@
             overflow-x: hidden;
         }
 
-        /* Exact Nebula Deep Space Background */
+        /* Cosmic Theme Styling */
         .cosmic-bg {
             background: 
-                radial-gradient(circle at 50% 30%, rgba(147, 51, 234, 0.35) 0%, transparent 60%),
-                radial-gradient(circle at 75% 70%, rgba(59, 130, 246, 0.3) 0%, transparent 55%),
-                radial-gradient(circle at 20% 80%, rgba(168, 85, 247, 0.2) 0%, transparent 50%),
-                linear-gradient(180deg, #090314 0%, #130a38 50%, #0a041a 100%);
+                radial-gradient(circle at 50% 20%, rgba(147, 51, 234, 0.3) 0%, transparent 55%),
+                radial-gradient(circle at 80% 60%, rgba(59, 130, 246, 0.25) 0%, transparent 50%),
+                radial-gradient(circle at 10% 80%, rgba(168, 85, 247, 0.15) 0%, transparent 45%),
+                linear-gradient(180deg, #070b19 0%, #0d1527 50%, #060913 100%);
         }
 
-        /* Glassmorphism style matching the reference image */
         .glass-panel {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.12);
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glass-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .glass-input {
@@ -65,45 +76,35 @@
             background: rgba(255, 255, 255, 0.12);
         }
 
-        /* Glowing space aura */
         @keyframes auraPulse {
-            0%, 100% { opacity: 0.6; transform: scale(1); }
-            50% { opacity: 0.9; transform: scale(1.08); }
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
         }
 
-        .animate-aura-purple {
-            animation: auraPulse 4s ease-in-out infinite;
+        .animate-aura {
+            animation: auraPulse 5s ease-in-out infinite;
         }
 
-        /* Dense sparkling starfield */
-        .stars-overlay {
-            background-image: 
-                radial-gradient(1.5px 1.5px at 15px 25px, #ffffff, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 80px 140px, #e9d5ff, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 190px 70px, #ffffff, rgba(0,0,0,0)),
-                radial-gradient(2.5px 2.5px at 280px 220px, #a855f7, rgba(0,0,0,0)),
-                radial-gradient(1.5px 1.5px at 390px 110px, #38bdf8, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 450px 320px, #ffffff, rgba(0,0,0,0));
-            background-repeat: repeat;
-            background-size: 400px 400px;
-            opacity: 0.85;
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
     </style>
 </head>
-<body class="min-h-screen w-screen cosmic-bg relative select-none overflow-x-hidden flex flex-col items-center justify-center p-4">
+<body class="min-h-screen w-screen cosmic-bg relative select-none overflow-x-hidden flex flex-col items-center justify-start p-0 sm:p-4">
 
-    <!-- Deep Space Nebula Stars Layer -->
-    <div class="fixed inset-0 stars-overlay pointer-events-none"></div>
+    <!-- Background glow elements -->
+    <div class="fixed w-[300px] h-[300px] sm:w-[500px] sm:h-[500px] bg-purple-600/20 rounded-full blur-[120px] animate-aura pointer-events-none top-0 left-1/2 -translate-x-1/2"></div>
 
-    <!-- Purple & Cyan Soft Cosmic Glow Behind Logo -->
-    <div class="fixed w-[350px] h-[350px] sm:w-[500px] sm:h-[500px] bg-purple-600/25 rounded-full blur-[110px] animate-aura-purple pointer-events-none"></div>
-
-    <!-- APP CONTAINER -->
-    <div id="app-root" class="relative z-10 w-full max-w-md sm:max-w-lg mx-auto flex flex-col items-center">
+    <!-- MAIN WRAPPER CONTAINER -->
+    <div id="app-root" class="relative z-10 w-full max-w-md sm:max-w-xl mx-auto min-h-screen flex flex-col pb-24">
 
         <!-- ==================== SPLASH SCREEN ==================== -->
-        <div id="splash-screen" class="flex flex-col items-center justify-center min-h-[80vh] w-full transition-all duration-700">
-            <div class="relative w-44 h-44 sm:w-60 sm:h-60 flex items-center justify-center cursor-pointer" onclick="goToAuth()">
+        <div id="splash-screen" class="flex flex-col items-center justify-center min-h-screen w-full transition-all duration-700">
+            <div class="relative w-44 h-44 sm:w-56 sm:h-56 flex items-center justify-center cursor-pointer" onclick="goToAuth()">
                 <img src="fapplogo2.png" 
                      alt="F App Logo" 
                      class="w-full h-full object-contain filter drop-shadow-[0_0_35px_rgba(168,85,247,0.75)] transition-all duration-500 hover:scale-105"
@@ -112,63 +113,60 @@
                     <span class="text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">F</span>
                 </div>
             </div>
-            <p class="mt-6 text-cyan-300/80 text-sm tracking-widest font-medium animate-pulse">DAVOM ETISH UCHUN BING</p>
+            <p class="mt-6 text-cyan-300/80 text-xs sm:text-sm tracking-widest font-semibold animate-pulse uppercase">DAVOM ETISH UCHUN BOSING</p>
         </div>
 
-        <!-- ==================== AUTH SCREEN (LOG IN & SIGN UP) ==================== -->
-        <div id="auth-screen" class="hidden w-full flex flex-col items-center py-6 px-4">
+        <!-- ==================== AUTH SCREEN ==================== -->
+        <div id="auth-screen" class="hidden w-full flex flex-col items-center my-auto py-8 px-4">
             
-            <!-- Logo Header -->
             <div class="flex flex-col items-center mb-6">
-                <img src="fapplogo2.png" alt="F App Logo" class="w-24 h-24 sm:w-28 sm:h-28 object-contain filter drop-shadow-[0_0_20px_rgba(168,85,247,0.6)]" />
-                <h1 class="text-3xl font-bold tracking-tight text-white mt-1">F App</h1>
+                <img src="fapplogo2.png" alt="F App Logo" class="w-20 h-20 sm:w-24 sm:h-24 object-contain filter drop-shadow-[0_0_20px_rgba(168,85,247,0.6)]" />
+                <h1 class="text-2xl font-bold tracking-tight text-white mt-1">F App</h1>
             </div>
 
-            <!-- Card Form Container -->
             <div class="w-full glass-panel rounded-3xl p-6 sm:p-8 shadow-2xl relative border border-white/10">
 
-                <!-- Notifications / Error Messages -->
                 <div id="auth-alert" class="hidden mb-4 p-3 rounded-xl text-xs font-medium border text-center transition-all"></div>
 
-                <!-- 1. LOGIN FORM -->
+                <!-- LOGIN FORM -->
                 <div id="login-form-container">
-                    <h2 class="text-xl font-semibold text-white mb-6 text-center">Xush kelibsiz</h2>
+                    <h2 class="text-lg font-semibold text-white mb-6 text-center">Xush kelibsiz</h2>
                     
                     <form onsubmit="handleLogin(event)" class="space-y-4">
                         <div>
                             <label class="block text-xs font-medium text-gray-300 mb-1.5 ml-1">Nickname</label>
                             <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">@</span>
-                                <input type="text" id="login-nickname" required placeholder="fayzillo_009" class="w-full glass-input rounded-2xl py-3 pl-9 pr-4 text-sm font-medium placeholder-gray-500">
+                                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400 text-xs">@</span>
+                                <input type="text" id="login-nickname" required placeholder="fayzillo_009" class="w-full glass-input rounded-2xl py-3 pl-9 pr-4 text-xs font-medium placeholder-gray-500">
                             </div>
                         </div>
 
                         <div>
                             <label class="block text-xs font-medium text-gray-300 mb-1.5 ml-1">Parol</label>
                             <div class="relative">
-                                <input type="password" id="login-password" required placeholder="••••••••" class="w-full glass-input rounded-2xl py-3 px-4 text-sm font-medium placeholder-gray-500">
+                                <input type="password" id="login-password" required placeholder="••••••••" class="w-full glass-input rounded-2xl py-3 px-4 text-xs font-medium placeholder-gray-500">
                                 <button type="button" onclick="togglePassword('login-password')" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-white">
-                                    👁️
+                                    <i data-lucide="eye" class="w-4 h-4"></i>
                                 </button>
                             </div>
                         </div>
 
-                        <button type="submit" class="w-full mt-6 py-3.5 px-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold rounded-2xl shadow-lg shadow-purple-600/30 transition-all transform active:scale-95">
+                        <button type="submit" class="w-full mt-6 py-3.5 px-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold rounded-2xl shadow-lg shadow-purple-600/30 transition-all active:scale-95 text-xs">
                             Log In
                         </button>
                     </form>
 
                     <div class="mt-6 text-center border-t border-white/10 pt-4">
                         <p class="text-xs text-gray-400 mb-3">Akkountingiz yo'qmi?</p>
-                        <button onclick="switchAuthTab('signup')" class="w-full py-3 px-4 glass-input rounded-2xl text-sm font-medium text-cyan-300 hover:bg-white/10 transition-all border border-cyan-500/30">
+                        <button onclick="switchAuthTab('signup')" class="w-full py-3 px-4 glass-input rounded-2xl text-xs font-medium text-cyan-300 hover:bg-white/10 transition-all border border-cyan-500/30">
                             Sign Up (Yangi hisob yaratish)
                         </button>
                     </div>
                 </div>
 
-                <!-- 2. SIGN UP FORM -->
+                <!-- SIGN UP FORM -->
                 <div id="signup-form-container" class="hidden">
-                    <h2 class="text-xl font-semibold text-white mb-4 text-center">Yangi hisob yaratish</h2>
+                    <h2 class="text-lg font-semibold text-white mb-4 text-center">Yangi hisob yaratish</h2>
                     
                     <form onsubmit="handleSignUp(event)" class="space-y-3">
                         <div class="grid grid-cols-2 gap-3">
@@ -196,7 +194,6 @@
                             </div>
                         </div>
 
-                        <!-- Nickname Field with Strict Validation Rules Hint -->
                         <div>
                             <label class="block text-xs text-gray-300 mb-1 ml-1">Nickname yaratish</label>
                             <div class="relative">
@@ -211,11 +208,10 @@
                             </ul>
                         </div>
 
-                        <!-- Password Field -->
                         <div>
                             <label class="block text-xs text-gray-300 mb-1 ml-1">Parol yaratish</label>
                             <input type="password" id="signup-password" oninput="validatePasswordLive()" required placeholder="Kamida 8 ta belgi" class="w-full glass-input rounded-xl py-2.5 px-3 text-xs">
-                            <p id="rule-password-length" class="mt-1 text-[10px] text-gray-400 ml-1">• Kamida 8 ta belgi (harf yoki raqam bo'lishi yetarli)</p>
+                            <p id="rule-password-length" class="mt-1 text-[10px] text-gray-400 ml-1">• Kamida 8 ta belgi</p>
                         </div>
 
                         <button type="submit" class="w-full mt-4 py-3 px-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-purple-600/30 transition-all">
@@ -231,38 +227,262 @@
                 </div>
 
             </div>
-
         </div>
 
-        <!-- ==================== MAIN APP / HOME SCREEN ==================== -->
-        <div id="home-screen" class="hidden w-full min-h-screen flex flex-col">
-            <!-- Header -->
-            <div class="flex items-center justify-between p-4 glass-panel rounded-2xl mb-6">
-                <div class="flex items-center space-x-3">
-                    <img src="fapplogo2.png" alt="Logo" class="w-10 h-10 object-contain">
-                    <div>
-                        <h2 class="text-sm font-bold text-white" id="user-display-name">Fayzullo</h2>
-                        <p class="text-[10px] text-cyan-400" id="user-display-nickname">@fayzillo_009</p>
+        <!-- ==================== MAIN HOME SCREEN ==================== -->
+        <div id="home-screen" class="hidden w-full flex flex-col pt-3 px-3 sm:px-0">
+            
+            <!-- HEADER (Exact match with reference image) -->
+            <header class="flex items-center justify-between py-2 px-1 mb-4">
+                <!-- Left: Logo & F App Title -->
+                <div class="flex items-center space-x-2.5">
+                    <img src="fapplogo2.png" alt="F App Logo" class="w-9 h-9 object-contain drop-shadow-[0_0_12px_rgba(56,189,248,0.6)]" onerror="this.src='https://placehold.co/40x40/1677FF/ffffff?text=F'">
+                    <span class="text-xl font-extrabold tracking-tight text-white">F App</span>
+                </div>
+
+                <!-- Right: Search Icon only (No Profile picture as per instructions) -->
+                <div class="flex items-center">
+                    <button class="p-2 text-gray-300 hover:text-white transition-colors rounded-full hover:bg-white/10">
+                        <i data-lucide="search" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- 1. CURRENCY EXCHANGE CARD (Real dynamic currency selector) -->
+            <section class="glass-card rounded-2xl p-3 mb-4 border border-white/10">
+                <div class="flex items-center justify-between mb-2 px-1">
+                    <span class="text-[11px] font-medium text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <i data-lucide="trending-up" class="w-3.5 h-3.5 text-cyan-400"></i> Valyuta Kurslari (Real vaqt)
+                    </span>
+                    <button onclick="fetchExchangeRates()" class="text-[10px] text-cyan-400 hover:underline flex items-center gap-1">
+                        <i data-lucide="refresh-cw" class="w-3 h-3"></i> Yangilash
+                    </button>
+                </div>
+
+                <!-- 3 Major Currency Displays -->
+                <div class="grid grid-cols-3 gap-2 text-center">
+                    <!-- USD Card -->
+                    <div class="bg-white/5 rounded-xl p-2 border border-white/5 flex flex-col items-center">
+                        <div class="flex items-center space-x-1 text-xs font-semibold text-white">
+                            <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                            <span>USD</span>
+                        </div>
+                        <span id="rate-usd" class="text-xs font-bold text-cyan-300 mt-1">12,850</span>
+                        <span class="text-[9px] text-emerald-400 mt-0.5 flex items-center gap-0.5">
+                            <i data-lucide="arrow-up-right" class="w-2.5 h-2.5"></i> +0.15%
+                        </span>
+                    </div>
+
+                    <!-- EUR Card -->
+                    <div class="bg-white/5 rounded-xl p-2 border border-white/5 flex flex-col items-center">
+                        <div class="flex items-center space-x-1 text-xs font-semibold text-white">
+                            <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+                            <span>EUR</span>
+                        </div>
+                        <span id="rate-eur" class="text-xs font-bold text-cyan-300 mt-1">13,920</span>
+                        <span class="text-[9px] text-emerald-400 mt-0.5 flex items-center gap-0.5">
+                            <i data-lucide="arrow-up-right" class="w-2.5 h-2.5"></i> +0.22%
+                        </span>
+                    </div>
+
+                    <!-- UZS Custom Selector Card -->
+                    <div class="bg-white/5 rounded-xl p-2 border border-white/5 flex flex-col items-center">
+                        <select id="currency-select" onchange="updateSelectedCurrency()" class="bg-transparent text-[11px] font-semibold text-white focus:outline-none cursor-pointer text-center">
+                            <option value="RUB" class="bg-navy-base text-white">RUB</option>
+                            <option value="CNY" class="bg-navy-base text-white">CNY</option>
+                            <option value="GBP" class="bg-navy-base text-white">GBP</option>
+                            <option value="KZT" class="bg-navy-base text-white">KZT</option>
+                        </select>
+                        <span id="rate-custom" class="text-xs font-bold text-cyan-300 mt-1">132.50</span>
+                        <span class="text-[9px] text-red-400 mt-0.5 flex items-center gap-0.5">
+                            <i data-lucide="arrow-down-right" class="w-2.5 h-2.5"></i> -0.05%
+                        </span>
                     </div>
                 </div>
-                <button onclick="logout()" class="px-3 py-1.5 glass-input rounded-xl text-xs text-red-400 hover:bg-red-500/20">
-                    Chiqish
-                </button>
-            </div>
+            </section>
 
-            <!-- Home Welcome Banner -->
-            <div class="glass-panel p-6 rounded-3xl mb-6 text-center relative overflow-hidden">
-                <div class="relative z-10">
-                    <h3 class="text-xl font-extrabold text-white mb-2">F App Ekotizimiga Xush Kelibsiz!</h3>
-                    <p class="text-xs text-gray-300 max-w-sm mx-auto">Barcha raqamli xizmatlar, muloqot va sun'iy intellekt bitta universal ilovada jamlangan.</p>
+            <!-- 2. REAL-TIME LOCATION WEATHER WIDGET -->
+            <section class="glass-card rounded-2xl p-4 mb-5 border border-white/10 relative overflow-hidden">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <div class="flex items-center space-x-1.5 text-gray-300 text-xs font-medium">
+                            <i data-lucide="map-pin" class="w-3.5 h-3.5 text-cyan-400"></i>
+                            <span id="weather-city">Tashkent</span>
+                        </div>
+                        <div class="flex items-baseline space-x-2 mt-1">
+                            <h2 id="weather-temp" class="text-4xl font-extrabold text-white tracking-tight">27°</h2>
+                            <span id="weather-condition" class="text-xs font-medium text-cyan-300">Clear</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Weather Visual Icon Container -->
+                    <div class="flex flex-col items-end">
+                        <div class="p-2.5 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-white/10 text-cyan-300">
+                            <i id="weather-icon" data-lucide="cloud-moon" class="w-8 h-8"></i>
+                        </div>
+                    </div>
                 </div>
-            </div>
+
+                <!-- Extra Weather Metrics -->
+                <div class="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between text-[11px] text-gray-300">
+                    <span id="weather-feels">Hiss qilinishi: 25°</span>
+                    <span id="weather-range" class="flex items-center gap-1">
+                        <i data-lucide="thermometer" class="w-3 h-3 text-cyan-400"></i> 32° / 20°
+                    </span>
+                </div>
+            </section>
+
+            <!-- 3. BREAKING NEWS SECTION -->
+            <section class="mb-5">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <i data-lucide="zap" class="w-4 h-4 text-amber-400"></i>
+                        So'nggi Yangiliklar
+                    </h3>
+                    <a href="#" class="text-[11px] font-semibold text-cyan-400 hover:underline uppercase tracking-wider flex items-center">
+                        Barchasi <i data-lucide="chevron-right" class="w-3 h-3 ml-0.5"></i>
+                    </a>
+                </div>
+
+                <div class="flex space-x-3 overflow-x-auto no-scrollbar pb-2">
+                    <!-- News Item 1 -->
+                    <div class="min-w-[200px] w-[200px] glass-card rounded-2xl p-2.5 border border-white/10 flex-shrink-0">
+                        <div class="relative h-24 rounded-xl overflow-hidden mb-2">
+                            <img src="https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=400&q=80" class="w-full h-full object-cover" alt="News">
+                            <span class="absolute top-2 left-2 px-1.5 py-0.5 bg-red-600 text-white text-[9px] font-extrabold rounded-md uppercase">LIVE</span>
+                        </div>
+                        <h4 class="text-xs font-semibold text-white line-clamp-2">Shahar markazida yirik infratuzilma loyihasi boshlandi</h4>
+                        <span class="text-[10px] text-gray-400 mt-2 block">10 daqiqa oldin</span>
+                    </div>
+
+                    <!-- News Item 2 -->
+                    <div class="min-w-[200px] w-[200px] glass-card rounded-2xl p-2.5 border border-white/10 flex-shrink-0">
+                        <div class="relative h-24 rounded-xl overflow-hidden mb-2">
+                            <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=400&q=80" class="w-full h-full object-cover" alt="News">
+                        </div>
+                        <h4 class="text-xs font-semibold text-white line-clamp-2">Valyuta birjasida rekord darajadagi bitimlar soni</h4>
+                        <span class="text-[10px] text-gray-400 mt-2 block">42 daqiqa oldin</span>
+                    </div>
+
+                    <!-- News Item 3 -->
+                    <div class="min-w-[200px] w-[200px] glass-card rounded-2xl p-2.5 border border-white/10 flex-shrink-0">
+                        <div class="relative h-24 rounded-xl overflow-hidden mb-2">
+                            <img src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=400&q=80" class="w-full h-full object-cover" alt="News">
+                        </div>
+                        <h4 class="text-xs font-semibold text-white line-clamp-2">Ta'lim sohasida yangi raqamli texnologiyalar tatbiq etilmoqda</h4>
+                        <span class="text-[10px] text-gray-400 mt-2 block">2 soat oldin</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. SHOP DEALS SECTION -->
+            <section class="mb-5">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <i data-lucide="shopping-bag" class="w-4 h-4 text-cyan-400"></i>
+                        Do'kon Chegirmalari
+                    </h3>
+                    <a href="#" class="text-[11px] font-semibold text-cyan-400 hover:underline uppercase tracking-wider flex items-center">
+                        Barchasi <i data-lucide="chevron-right" class="w-3 h-3 ml-0.5"></i>
+                    </a>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2.5">
+                    <!-- Deal 1 -->
+                    <div class="glass-card rounded-2xl p-2.5 border border-white/10 flex flex-col items-center text-center">
+                        <span class="text-[9px] font-bold text-amber-400 self-start bg-amber-400/10 px-1.5 py-0.5 rounded-md">50% OFF</span>
+                        <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=200&q=80" class="w-14 h-14 object-contain my-1.5" alt="Headphones">
+                        <span class="text-xs font-bold text-white">$199</span>
+                        <button class="mt-2 text-[10px] font-bold text-white bg-blue-600 hover:bg-blue-500 w-full py-1 rounded-xl transition-all">Sotib olish</button>
+                    </div>
+
+                    <!-- Deal 2 -->
+                    <div class="glass-card rounded-2xl p-2.5 border border-white/10 flex flex-col items-center text-center">
+                        <span class="text-[9px] font-bold text-amber-400 self-start bg-amber-400/10 px-1.5 py-0.5 rounded-md">30% OFF</span>
+                        <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=200&q=80" class="w-14 h-14 object-contain my-1.5" alt="Smart Watch">
+                        <span class="text-xs font-bold text-white">$299</span>
+                        <button class="mt-2 text-[10px] font-bold text-white bg-blue-600 hover:bg-blue-500 w-full py-1 rounded-xl transition-all">Sotib olish</button>
+                    </div>
+
+                    <!-- Deal 3 -->
+                    <div class="glass-card rounded-2xl p-2.5 border border-white/10 flex flex-col items-center text-center">
+                        <span class="text-[9px] font-bold text-amber-400 self-start bg-amber-400/10 px-1.5 py-0.5 rounded-md">40% OFF</span>
+                        <img src="https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&w=200&q=80" class="w-14 h-14 object-contain my-1.5" alt="Controller">
+                        <span class="text-xs font-bold text-white">$449</span>
+                        <button class="mt-2 text-[10px] font-bold text-white bg-blue-600 hover:bg-blue-500 w-full py-1 rounded-xl transition-all">Sotib olish</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. RESERVED SPACE FOR 17 ECOSYSTEM SERVICES (Placeholders for future functionality) -->
+            <section class="mb-6">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <i data-lucide="grid" class="w-4 h-4 text-purple-400"></i>
+                        Ekotizim Xizmatlari
+                    </h3>
+                    <span class="text-[10px] text-gray-400">17 ta bo'lim</span>
+                </div>
+
+                <div class="grid grid-cols-4 gap-2.5">
+                    <!-- Reserved Service Placeholders -->
+                    <script>
+                        for(let i=1; i<=17; i++) {
+                            document.write(`
+                                <div class="glass-card rounded-2xl p-2.5 border border-white/5 flex flex-col items-center justify-center opacity-75 hover:opacity-100 transition-all cursor-pointer hover:border-purple-500/30">
+                                    <div class="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center mb-1 text-purple-300">
+                                        <i data-lucide="layers" class="w-4 h-4"></i>
+                                    </div>
+                                    <span class="text-[9px] font-medium text-gray-300 text-center">Xizmat #${i}</span>
+                                </div>
+                            `);
+                        }
+                    </script>
+                </div>
+            </section>
+
         </div>
+
+        <!-- ==================== BOTTOM NAVIGATION (5 TABS) ==================== -->
+        <nav id="bottom-nav" class="hidden fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md sm:max-w-xl glass-panel border-t border-white/10 px-4 py-2.5 z-50 flex items-center justify-between">
+            <!-- 1. HOME (ACTIVE) -->
+            <button class="flex flex-col items-center text-cyan-400 transition-all">
+                <i data-lucide="home" class="w-5 h-5"></i>
+                <span class="text-[10px] font-bold mt-1">Home</span>
+            </button>
+
+            <!-- 2. EMPTY / RESERVED 1 -->
+            <button class="flex flex-col items-center text-gray-500 transition-all hover:text-gray-300">
+                <i data-lucide="square" class="w-5 h-5"></i>
+                <span class="text-[10px] font-medium mt-1">---</span>
+            </button>
+
+            <!-- 3. PROFILE (INSTAGRAM STYLE) -->
+            <button class="flex flex-col items-center text-gray-400 hover:text-white transition-all">
+                <i data-lucide="user" class="w-5 h-5"></i>
+                <span class="text-[10px] font-medium mt-1">Profil</span>
+            </button>
+
+            <!-- 4. EMPTY / RESERVED 2 -->
+            <button class="flex flex-col items-center text-gray-500 transition-all hover:text-gray-300">
+                <i data-lucide="square" class="w-5 h-5"></i>
+                <span class="text-[10px] font-medium mt-1">---</span>
+            </button>
+
+            <!-- 5. SETTINGS -->
+            <button class="flex flex-col items-center text-gray-400 hover:text-white transition-all">
+                <i data-lucide="settings" class="w-5 h-5"></i>
+                <span class="text-[10px] font-medium mt-1">Sozlamalar</span>
+            </button>
+        </nav>
 
     </div>
 
-    <!-- JS Logic for Auth and Validation -->
+    <!-- JS Logic for Auth, Weather & Currency -->
     <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
         // Sample in-memory DB of registered users
         let usersDB = JSON.parse(localStorage.getItem('fapp_users')) || {
             'fayzillo_009': { firstname: 'Fayzullo', lastname: 'Anvarov', age: 20, gender: 'male', password: 'password123' }
@@ -302,12 +522,6 @@
             input.type = input.type === 'password' ? 'text' : 'password';
         }
 
-        /* NICKNAME VALIDATION RULES:
-           - Only lowercase letters (a-z)
-           - At least 2 letters
-           - At least one '.' or '_'
-           - At least 2 digits
-        */
         function checkNicknameRules(nick) {
             const isOnlyLowercase = /^[a-z0-9._]+$/.test(nick);
             const letterMatch = nick.match(/[a-z]/g);
@@ -364,26 +578,22 @@
             const nickname = document.getElementById('signup-nickname').value.trim();
             const password = document.getElementById('signup-password').value;
 
-            // Validate Nickname
             const nickValidation = checkNicknameRules(nickname);
             if (!nickValidation.isValid) {
                 showAlert('Nickname barcha talablarga javob berishi kerak!');
                 return;
             }
 
-            // Check if nickname already exists
             if (usersDB[nickname]) {
                 showAlert('Ushbu nickname band. Iltimos, boshqasini tanlang.');
                 return;
             }
 
-            // Validate Password
             if (password.length < 8) {
                 showAlert('Parol kamida 8 ta belgidan iborat bo\'lishi shart!');
                 return;
             }
 
-            // Save user
             usersDB[nickname] = { firstname, lastname, age, gender, password };
             localStorage.setItem('fapp_users', JSON.stringify(usersDB));
 
@@ -391,7 +601,7 @@
             setTimeout(() => {
                 switchAuthTab('login');
                 document.getElementById('login-nickname').value = nickname;
-            }, 1500);
+            }, 1200);
         }
 
         // LOG IN HANDLER
@@ -413,17 +623,69 @@
                 return;
             }
 
-            // Login Success
+            // Launch Home Screen
             document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('home-screen').classList.remove('hidden');
+            document.getElementById('bottom-nav').classList.remove('hidden');
 
-            document.getElementById('user-display-name').innerText = `${user.firstname} ${user.lastname}`;
-            document.getElementById('user-display-nickname').innerText = `@${nickname}`;
+            // Initialize widgets
+            initWeather();
+            fetchExchangeRates();
         }
 
-        function logout() {
-            document.getElementById('home-screen').classList.add('hidden');
-            document.getElementById('auth-screen').classList.remove('hidden');
+        // FETCH REAL CURRENCY EXCHANGE RATES
+        async function fetchExchangeRates() {
+            try {
+                const res = await fetch('https://open.er-api.com/v6/latest/USD');
+                const data = await res.json();
+                if (data && data.rates) {
+                    const uzsRate = data.rates.UZS || 12850;
+                    document.getElementById('rate-usd').innerText = Math.round(uzsRate).toLocaleString();
+                    
+                    const eurToUzs = (1 / data.rates.EUR) * uzsRate;
+                    document.getElementById('rate-eur').innerText = Math.round(eurToUzs).toLocaleString();
+
+                    window.currencyRates = data.rates;
+                    window.uzsBaseRate = uzsRate;
+                    updateSelectedCurrency();
+                }
+            } catch (err) {
+                console.log('Exchange rate fetch fallback active');
+            }
+        }
+
+        function updateSelectedCurrency() {
+            const select = document.getElementById('currency-select');
+            const code = select.value;
+            if (window.currencyRates && window.uzsBaseRate) {
+                const rateToUzs = (1 / window.currencyRates[code]) * window.uzsBaseRate;
+                document.getElementById('rate-custom').innerText = rateToUzs < 10 ? rateToUzs.toFixed(2) : Math.round(rateToUzs).toLocaleString();
+            }
+        }
+
+        // GEOLOCATION REAL WEATHER INTEGRATION
+        function initWeather() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    async (position) => {
+                        const lat = position.coords.latitude;
+                        const lon = position.coords.longitude;
+                        try {
+                            const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+                            const data = await res.json();
+                            if (data && data.current_weather) {
+                                document.getElementById('weather-temp').innerText = `${Math.round(data.current_weather.temperature)}°`;
+                                document.getElementById('weather-city').innerText = 'Joriy Joylashuv';
+                            }
+                        } catch (e) {
+                            console.log('Weather fallback used');
+                        }
+                    },
+                    (error) => {
+                        console.log('Geolocation disabled/rejected, showing default.');
+                    }
+                );
+            }
         }
     </script>
 </body>
