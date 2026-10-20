@@ -37,7 +37,6 @@
             overflow-x: hidden;
         }
 
-        /* Cosmic Theme Styling */
         .cosmic-bg {
             background: 
                 radial-gradient(circle at 50% 20%, rgba(147, 51, 234, 0.3) 0%, transparent 55%),
@@ -102,18 +101,23 @@
     <!-- MAIN WRAPPER CONTAINER -->
     <div id="app-root" class="relative z-10 w-full max-w-md sm:max-w-xl mx-auto min-h-screen flex flex-col pb-24">
 
-        <!-- ==================== SPLASH SCREEN ==================== -->
+        <!-- ==================== SPLASH SCREEN (3 SECOND AUTO TIMER) ==================== -->
         <div id="splash-screen" class="flex flex-col items-center justify-center min-h-screen w-full transition-all duration-700">
-            <div class="relative w-44 h-44 sm:w-56 sm:h-56 flex items-center justify-center cursor-pointer" onclick="goToAuth()">
+            <div class="relative w-44 h-44 sm:w-56 sm:h-56 flex items-center justify-center">
                 <img src="fapplogo2.png" 
                      alt="F App Logo" 
-                     class="w-full h-full object-contain filter drop-shadow-[0_0_35px_rgba(168,85,247,0.75)] transition-all duration-500 hover:scale-105"
+                     class="w-full h-full object-contain filter drop-shadow-[0_0_35px_rgba(168,85,247,0.75)] animate-pulse"
                      onerror="this.style.display='none'; document.getElementById('fallback-logo').classList.remove('hidden');" />
                 <div id="fallback-logo" class="hidden w-full h-full flex items-center justify-center">
                     <span class="text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">F</span>
                 </div>
             </div>
-            <p class="mt-6 text-cyan-300/80 text-xs sm:text-sm tracking-widest font-semibold animate-pulse uppercase">DAVOM ETISH UCHUN BOSING</p>
+            
+            <!-- Progress indicator bar -->
+            <div class="w-48 h-1.5 bg-white/10 rounded-full mt-8 overflow-hidden relative">
+                <div id="splash-progress" class="h-full bg-gradient-to-r from-cyan-400 to-purple-500 w-0 transition-all duration-[3000ms] ease-linear"></div>
+            </div>
+            <p class="mt-3 text-cyan-300/80 text-[11px] tracking-widest font-medium uppercase">Yuklanmoqda...</p>
         </div>
 
         <!-- ==================== AUTH SCREEN ==================== -->
@@ -232,7 +236,7 @@
         <!-- ==================== MAIN HOME SCREEN ==================== -->
         <div id="home-screen" class="hidden w-full flex flex-col pt-3 px-3 sm:px-0">
             
-            <!-- HEADER (Exact match with reference image) -->
+            <!-- HEADER (With Anonymous White Profile Avatar) -->
             <header class="flex items-center justify-between py-2 px-1 mb-4">
                 <!-- Left: Logo & F App Title -->
                 <div class="flex items-center space-x-2.5">
@@ -240,15 +244,19 @@
                     <span class="text-xl font-extrabold tracking-tight text-white">F App</span>
                 </div>
 
-                <!-- Right: Search Icon only (No Profile picture as per instructions) -->
-                <div class="flex items-center">
+                <!-- Right: Profile Avatar (Anonymous default) + Search Icon -->
+                <div class="flex items-center space-x-2">
                     <button class="p-2 text-gray-300 hover:text-white transition-colors rounded-full hover:bg-white/10">
                         <i data-lucide="search" class="w-5 h-5"></i>
                     </button>
+                    <!-- Default Anonymous White Profile Icon -->
+                    <div id="user-avatar-container" class="w-9 h-9 rounded-full bg-white/15 border border-white/30 flex items-center justify-center text-white shadow-md overflow-hidden">
+                        <i data-lucide="user" class="w-5 h-5 text-white"></i>
+                    </div>
                 </div>
             </header>
 
-            <!-- 1. CURRENCY EXCHANGE CARD (Real dynamic currency selector) -->
+            <!-- 1. CURRENCY EXCHANGE CARD (Real dynamic rates) -->
             <section class="glass-card rounded-2xl p-3 mb-4 border border-white/10">
                 <div class="flex items-center justify-between mb-2 px-1">
                     <span class="text-[11px] font-medium text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
@@ -259,7 +267,6 @@
                     </button>
                 </div>
 
-                <!-- 3 Major Currency Displays -->
                 <div class="grid grid-cols-3 gap-2 text-center">
                     <!-- USD Card -->
                     <div class="bg-white/5 rounded-xl p-2 border border-white/5 flex flex-col items-center">
@@ -285,7 +292,7 @@
                         </span>
                     </div>
 
-                    <!-- UZS Custom Selector Card -->
+                    <!-- Custom Currency Selector Card -->
                     <div class="bg-white/5 rounded-xl p-2 border border-white/5 flex flex-col items-center">
                         <select id="currency-select" onchange="updateSelectedCurrency()" class="bg-transparent text-[11px] font-semibold text-white focus:outline-none cursor-pointer text-center">
                             <option value="RUB" class="bg-navy-base text-white">RUB</option>
@@ -301,143 +308,133 @@
                 </div>
             </section>
 
-            <!-- 2. REAL-TIME LOCATION WEATHER WIDGET -->
+            <!-- 2. UZBEKISTON REGIONS WEATHER WIDGET (WITH SHAHRIXON/ANDIJON & HOURLY FORECAST) -->
             <section class="glass-card rounded-2xl p-4 mb-5 border border-white/10 relative overflow-hidden">
-                <div class="flex justify-between items-start">
+                <div class="flex justify-between items-start mb-3">
                     <div>
-                        <div class="flex items-center space-x-1.5 text-gray-300 text-xs font-medium">
-                            <i data-lucide="map-pin" class="w-3.5 h-3.5 text-cyan-400"></i>
-                            <span id="weather-city">Tashkent</span>
+                        <!-- Region & District Selector for Uzbekistan -->
+                        <div class="flex items-center space-x-1 text-cyan-400 text-xs font-medium mb-1">
+                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+                            <select id="region-selector" onchange="fetchWeatherForRegion()" class="bg-transparent border-b border-cyan-500/40 text-cyan-300 text-xs font-semibold focus:outline-none cursor-pointer">
+                                <option value="shahrixon" class="bg-navy-base text-white">Andijon, Shahrixon tumani</option>
+                                <option value="andijan" class="bg-navy-base text-white">Andijon shahri</option>
+                                <option value="tashkent" class="bg-navy-base text-white">Toshkent shahri</option>
+                                <option value="samarkand" class="bg-navy-base text-white">Samarqand</option>
+                                <option value="namangan" class="bg-navy-base text-white">Namangan</option>
+                                <option value="fergana" class="bg-navy-base text-white">Farg'ona</option>
+                                <option value="bukhara" class="bg-navy-base text-white">Buxoro</option>
+                                <option value="khiva" class="bg-navy-base text-white">Xiva / Xorazm</option>
+                                <option value="nukus" class="bg-navy-base text-white">Nukus / Qoraqalpog'iston</option>
+                                <option value="qashqadaryo" class="bg-navy-base text-white">Qarshi / Qashqadaryo</option>
+                                <option value="surxondaryo" class="bg-navy-base text-white">Termiz / Surxondaryo</option>
+                            </select>
                         </div>
                         <div class="flex items-baseline space-x-2 mt-1">
-                            <h2 id="weather-temp" class="text-4xl font-extrabold text-white tracking-tight">27°</h2>
-                            <span id="weather-condition" class="text-xs font-medium text-cyan-300">Clear</span>
+                            <h2 id="weather-temp" class="text-4xl font-extrabold text-white tracking-tight">--°</h2>
+                            <span id="weather-condition" class="text-xs font-medium text-cyan-300">Yuklanmoqda...</span>
                         </div>
                     </div>
                     
-                    <!-- Weather Visual Icon Container -->
                     <div class="flex flex-col items-end">
                         <div class="p-2.5 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-white/10 text-cyan-300">
-                            <i id="weather-icon" data-lucide="cloud-moon" class="w-8 h-8"></i>
+                            <i id="weather-icon" data-lucide="sun" class="w-8 h-8"></i>
                         </div>
                     </div>
                 </div>
 
-                <!-- Extra Weather Metrics -->
-                <div class="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between text-[11px] text-gray-300">
-                    <span id="weather-feels">Hiss qilinishi: 25°</span>
-                    <span id="weather-range" class="flex items-center gap-1">
-                        <i data-lucide="thermometer" class="w-3 h-3 text-cyan-400"></i> 32° / 20°
-                    </span>
+                <!-- 24-Hour Hourly Forecast (Horizontal Slider) -->
+                <div class="mt-3 pt-3 border-t border-white/10">
+                    <span class="text-[10px] text-gray-400 uppercase tracking-wider block mb-2 font-semibold">Bugungi soatbay prognoz</span>
+                    <div id="hourly-forecast-container" class="flex space-x-3 overflow-x-auto no-scrollbar py-1">
+                        <!-- Dynamically filled with hours -->
+                        <div class="text-center min-w-[45px] text-[10px] text-gray-400">Loading...</div>
+                    </div>
                 </div>
             </section>
 
-            <!-- 3. BREAKING NEWS SECTION -->
+            <!-- 3. BREAKING NEWS PLACEHOLDER (Ready for real API integration) -->
             <section class="mb-5">
                 <div class="flex justify-between items-center mb-3">
                     <h3 class="text-sm font-bold text-white flex items-center gap-2">
                         <i data-lucide="zap" class="w-4 h-4 text-amber-400"></i>
                         So'nggi Yangiliklar
                     </h3>
-                    <a href="#" class="text-[11px] font-semibold text-cyan-400 hover:underline uppercase tracking-wider flex items-center">
-                        Barchasi <i data-lucide="chevron-right" class="w-3 h-3 ml-0.5"></i>
-                    </a>
+                    <span class="text-[10px] text-gray-400 italic">API kutilmoqda</span>
                 </div>
 
                 <div class="flex space-x-3 overflow-x-auto no-scrollbar pb-2">
-                    <!-- News Item 1 -->
-                    <div class="min-w-[200px] w-[200px] glass-card rounded-2xl p-2.5 border border-white/10 flex-shrink-0">
-                        <div class="relative h-24 rounded-xl overflow-hidden mb-2">
-                            <img src="https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=400&q=80" class="w-full h-full object-cover" alt="News">
-                            <span class="absolute top-2 left-2 px-1.5 py-0.5 bg-red-600 text-white text-[9px] font-extrabold rounded-md uppercase">LIVE</span>
+                    <!-- Clean Glass Empty News Slot 1 -->
+                    <div class="min-w-[200px] w-[200px] glass-card rounded-2xl p-3 border border-white/10 flex-shrink-0 flex flex-col justify-between h-32 relative group">
+                        <div class="flex items-center justify-between text-gray-500">
+                            <i data-lucide="newspaper" class="w-6 h-6 text-purple-400/60"></i>
+                            <span class="text-[9px] bg-white/5 px-2 py-0.5 rounded-full border border-white/10">Bo'sh bo'lim</span>
                         </div>
-                        <h4 class="text-xs font-semibold text-white line-clamp-2">Shahar markazida yirik infratuzilma loyihasi boshlandi</h4>
-                        <span class="text-[10px] text-gray-400 mt-2 block">10 daqiqa oldin</span>
+                        <div>
+                            <div class="h-2.5 bg-white/10 rounded w-3/4 mb-1.5 animate-pulse"></div>
+                            <div class="h-2 bg-white/5 rounded w-1/2 animate-pulse"></div>
+                        </div>
+                        <span class="text-[9px] text-gray-500">Real yangiliklar tasmasi o'rni</span>
                     </div>
 
-                    <!-- News Item 2 -->
-                    <div class="min-w-[200px] w-[200px] glass-card rounded-2xl p-2.5 border border-white/10 flex-shrink-0">
-                        <div class="relative h-24 rounded-xl overflow-hidden mb-2">
-                            <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=400&q=80" class="w-full h-full object-cover" alt="News">
+                    <!-- Clean Glass Empty News Slot 2 -->
+                    <div class="min-w-[200px] w-[200px] glass-card rounded-2xl p-3 border border-white/10 flex-shrink-0 flex flex-col justify-between h-32 relative">
+                        <div class="flex items-center justify-between text-gray-500">
+                            <i data-lucide="rss" class="w-6 h-6 text-cyan-400/60"></i>
+                            <span class="text-[9px] bg-white/5 px-2 py-0.5 rounded-full border border-white/10">Bo'sh bo'lim</span>
                         </div>
-                        <h4 class="text-xs font-semibold text-white line-clamp-2">Valyuta birjasida rekord darajadagi bitimlar soni</h4>
-                        <span class="text-[10px] text-gray-400 mt-2 block">42 daqiqa oldin</span>
+                        <div>
+                            <div class="h-2.5 bg-white/10 rounded w-4/5 mb-1.5 animate-pulse"></div>
+                            <div class="h-2 bg-white/5 rounded w-2/3 animate-pulse"></div>
+                        </div>
+                        <span class="text-[9px] text-gray-500">Real yangiliklar tasmasi o'rni</span>
                     </div>
 
-                    <!-- News Item 3 -->
-                    <div class="min-w-[200px] w-[200px] glass-card rounded-2xl p-2.5 border border-white/10 flex-shrink-0">
-                        <div class="relative h-24 rounded-xl overflow-hidden mb-2">
-                            <img src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=400&q=80" class="w-full h-full object-cover" alt="News">
+                    <!-- Clean Glass Empty News Slot 3 -->
+                    <div class="min-w-[200px] w-[200px] glass-card rounded-2xl p-3 border border-white/10 flex-shrink-0 flex flex-col justify-between h-32 relative">
+                        <div class="flex items-center justify-between text-gray-500">
+                            <i data-lucide="globe" class="w-6 h-6 text-blue-400/60"></i>
+                            <span class="text-[9px] bg-white/5 px-2 py-0.5 rounded-full border border-white/10">Bo'sh bo'lim</span>
                         </div>
-                        <h4 class="text-xs font-semibold text-white line-clamp-2">Ta'lim sohasida yangi raqamli texnologiyalar tatbiq etilmoqda</h4>
-                        <span class="text-[10px] text-gray-400 mt-2 block">2 soat oldin</span>
+                        <div>
+                            <div class="h-2.5 bg-white/10 rounded w-2/3 mb-1.5 animate-pulse"></div>
+                            <div class="h-2 bg-white/5 rounded w-1/3 animate-pulse"></div>
+                        </div>
+                        <span class="text-[9px] text-gray-500">Real yangiliklar tasmasi o'rni</span>
                     </div>
                 </div>
             </section>
 
-            <!-- 4. SHOP DEALS SECTION -->
+            <!-- 4. SHOP DEALS PLACEHOLDER (Ready for real e-commerce API) -->
             <section class="mb-5">
                 <div class="flex justify-between items-center mb-3">
                     <h3 class="text-sm font-bold text-white flex items-center gap-2">
                         <i data-lucide="shopping-bag" class="w-4 h-4 text-cyan-400"></i>
                         Do'kon Chegirmalari
                     </h3>
-                    <a href="#" class="text-[11px] font-semibold text-cyan-400 hover:underline uppercase tracking-wider flex items-center">
-                        Barchasi <i data-lucide="chevron-right" class="w-3 h-3 ml-0.5"></i>
-                    </a>
+                    <span class="text-[10px] text-gray-400 italic">API kutilmoqda</span>
                 </div>
 
                 <div class="grid grid-cols-3 gap-2.5">
-                    <!-- Deal 1 -->
-                    <div class="glass-card rounded-2xl p-2.5 border border-white/10 flex flex-col items-center text-center">
-                        <span class="text-[9px] font-bold text-amber-400 self-start bg-amber-400/10 px-1.5 py-0.5 rounded-md">50% OFF</span>
-                        <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=200&q=80" class="w-14 h-14 object-contain my-1.5" alt="Headphones">
-                        <span class="text-xs font-bold text-white">$199</span>
-                        <button class="mt-2 text-[10px] font-bold text-white bg-blue-600 hover:bg-blue-500 w-full py-1 rounded-xl transition-all">Sotib olish</button>
+                    <!-- Shop Placeholder 1 -->
+                    <div class="glass-card rounded-2xl p-3 border border-white/10 flex flex-col items-center justify-center text-center h-28 relative">
+                        <i data-lucide="tag" class="w-6 h-6 text-amber-400/50 mb-2"></i>
+                        <span class="text-[10px] font-semibold text-gray-400">Chegirmalar</span>
+                        <span class="text-[8px] text-gray-500 mt-1">Real tovarlar joyi</span>
                     </div>
 
-                    <!-- Deal 2 -->
-                    <div class="glass-card rounded-2xl p-2.5 border border-white/10 flex flex-col items-center text-center">
-                        <span class="text-[9px] font-bold text-amber-400 self-start bg-amber-400/10 px-1.5 py-0.5 rounded-md">30% OFF</span>
-                        <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=200&q=80" class="w-14 h-14 object-contain my-1.5" alt="Smart Watch">
-                        <span class="text-xs font-bold text-white">$299</span>
-                        <button class="mt-2 text-[10px] font-bold text-white bg-blue-600 hover:bg-blue-500 w-full py-1 rounded-xl transition-all">Sotib olish</button>
+                    <!-- Shop Placeholder 2 -->
+                    <div class="glass-card rounded-2xl p-3 border border-white/10 flex flex-col items-center justify-center text-center h-28 relative">
+                        <i data-lucide="percent" class="w-6 h-6 text-emerald-400/50 mb-2"></i>
+                        <span class="text-[10px] font-semibold text-gray-400">Aksiyalar</span>
+                        <span class="text-[8px] text-gray-500 mt-1">Real tovarlar joyi</span>
                     </div>
 
-                    <!-- Deal 3 -->
-                    <div class="glass-card rounded-2xl p-2.5 border border-white/10 flex flex-col items-center text-center">
-                        <span class="text-[9px] font-bold text-amber-400 self-start bg-amber-400/10 px-1.5 py-0.5 rounded-md">40% OFF</span>
-                        <img src="https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&w=200&q=80" class="w-14 h-14 object-contain my-1.5" alt="Controller">
-                        <span class="text-xs font-bold text-white">$449</span>
-                        <button class="mt-2 text-[10px] font-bold text-white bg-blue-600 hover:bg-blue-500 w-full py-1 rounded-xl transition-all">Sotib olish</button>
+                    <!-- Shop Placeholder 3 -->
+                    <div class="glass-card rounded-2xl p-3 border border-white/10 flex flex-col items-center justify-center text-center h-28 relative">
+                        <i data-lucide="gift" class="w-6 h-6 text-purple-400/50 mb-2"></i>
+                        <span class="text-[10px] font-semibold text-gray-400">Takliflar</span>
+                        <span class="text-[8px] text-gray-500 mt-1">Real tovarlar joyi</span>
                     </div>
-                </div>
-            </section>
-
-            <!-- 5. RESERVED SPACE FOR 17 ECOSYSTEM SERVICES (Placeholders for future functionality) -->
-            <section class="mb-6">
-                <div class="flex justify-between items-center mb-3">
-                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                        <i data-lucide="grid" class="w-4 h-4 text-purple-400"></i>
-                        Ekotizim Xizmatlari
-                    </h3>
-                    <span class="text-[10px] text-gray-400">17 ta bo'lim</span>
-                </div>
-
-                <div class="grid grid-cols-4 gap-2.5">
-                    <!-- Reserved Service Placeholders -->
-                    <script>
-                        for(let i=1; i<=17; i++) {
-                            document.write(`
-                                <div class="glass-card rounded-2xl p-2.5 border border-white/5 flex flex-col items-center justify-center opacity-75 hover:opacity-100 transition-all cursor-pointer hover:border-purple-500/30">
-                                    <div class="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center mb-1 text-purple-300">
-                                        <i data-lucide="layers" class="w-4 h-4"></i>
-                                    </div>
-                                    <span class="text-[9px] font-medium text-gray-300 text-center">Xizmat #${i}</span>
-                                </div>
-                            `);
-                        }
-                    </script>
                 </div>
             </section>
 
@@ -457,7 +454,7 @@
                 <span class="text-[10px] font-medium mt-1">---</span>
             </button>
 
-            <!-- 3. PROFILE (INSTAGRAM STYLE) -->
+            <!-- 3. PROFILE -->
             <button class="flex flex-col items-center text-gray-400 hover:text-white transition-all">
                 <i data-lucide="user" class="w-5 h-5"></i>
                 <span class="text-[10px] font-medium mt-1">Profil</span>
@@ -478,19 +475,54 @@
 
     </div>
 
-    <!-- JS Logic for Auth, Weather & Currency -->
+    <!-- JS Logic for Auto-Login, Session Management & Regional Weather -->
     <script>
-        // Initialize Lucide Icons
+        // Initialize Lucide Vector Icons
         lucide.createIcons();
 
-        // Sample in-memory DB of registered users
+        // Coordinates mapping for Uzbekistan regions & Shahrixon
+        const uzbekistanRegions = {
+            shahrixon: { lat: 40.7139, lon: 72.0578, name: "Andijon, Shahrixon tumani" },
+            andijan: { lat: 40.7821, lon: 72.3442, name: "Andijon shahri" },
+            tashkent: { lat: 41.2995, lon: 69.2401, name: "Toshkent shahri" },
+            samarkand: { lat: 39.6542, lon: 66.9597, name: "Samarqand shahri" },
+            namangan: { lat: 40.9983, lon: 71.6726, name: "Namangan shahri" },
+            fergana: { lat: 40.3842, lon: 71.7843, name: "Farg'ona shahri" },
+            bukhara: { lat: 39.7747, lon: 64.4286, name: "Buxoro shahri" },
+            khiva: { lat: 41.3783, lon: 60.3639, name: "Xiva shahri" },
+            nukus: { lat: 42.4602, lon: 59.6178, name: "Nukus shahri" },
+            qashqadaryo: { lat: 38.8606, lon: 65.7892, name: "Qarshi shahri" },
+            surxondaryo: { lat: 37.2242, lon: 67.2783, name: "Termiz shahri" }
+        };
+
+        // Users database in LocalStorage
         let usersDB = JSON.parse(localStorage.getItem('fapp_users')) || {
             'fayzillo_009': { firstname: 'Fayzullo', lastname: 'Anvarov', age: 20, gender: 'male', password: 'password123' }
         };
 
-        function goToAuth() {
-            document.getElementById('splash-screen').classList.add('hidden');
-            document.getElementById('auth-screen').classList.remove('hidden');
+        // Automatic Application Launch Sequence on Window Load
+        window.addEventListener('load', () => {
+            startSplashTimer();
+        });
+
+        function startSplashTimer() {
+            const progressBar = document.getElementById('splash-progress');
+            if (progressBar) progressBar.style.width = '100%';
+
+            // 3-second timer before redirecting
+            setTimeout(() => {
+                document.getElementById('splash-screen').classList.add('hidden');
+                
+                // AUTO LOGIN CHECK: Check if session key exists
+                const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER');
+                if (activeUserKey && usersDB[activeUserKey]) {
+                    // Session exists: Go directly to Home Screen
+                    launchHomeScreen();
+                } else {
+                    // No session: Go to Auth Screen
+                    document.getElementById('auth-screen').classList.remove('hidden');
+                }
+            }, 3000);
         }
 
         function switchAuthTab(tab) {
@@ -597,11 +629,14 @@
             usersDB[nickname] = { firstname, lastname, age, gender, password };
             localStorage.setItem('fapp_users', JSON.stringify(usersDB));
 
-            showAlert('Ro\'yxatdan muvaffaqiyatli o\'tdingiz! Endi tizimga kiring.', false);
+            // Save login session immediately
+            localStorage.setItem('F_APP_LOGGED_USER', nickname);
+
+            showAlert('Ro\'yxatdan muvaffaqiyatli o\'tdingiz! Kirilmoqda...', false);
             setTimeout(() => {
-                switchAuthTab('login');
-                document.getElementById('login-nickname').value = nickname;
-            }, 1200);
+                document.getElementById('auth-screen').classList.add('hidden');
+                launchHomeScreen();
+            }, 1000);
         }
 
         // LOG IN HANDLER
@@ -623,17 +658,23 @@
                 return;
             }
 
+            // Save session to prevent asking again
+            localStorage.setItem('F_APP_LOGGED_USER', nickname);
+
             // Launch Home Screen
             document.getElementById('auth-screen').classList.add('hidden');
+            launchHomeScreen();
+        }
+
+        function launchHomeScreen() {
             document.getElementById('home-screen').classList.remove('hidden');
             document.getElementById('bottom-nav').classList.remove('hidden');
 
-            // Initialize widgets
-            initWeather();
+            fetchWeatherForRegion();
             fetchExchangeRates();
         }
 
-        // FETCH REAL CURRENCY EXCHANGE RATES
+        // REAL-TIME CURRENCY RATES
         async function fetchExchangeRates() {
             try {
                 const res = await fetch('https://open.er-api.com/v6/latest/USD');
@@ -650,7 +691,7 @@
                     updateSelectedCurrency();
                 }
             } catch (err) {
-                console.log('Exchange rate fetch fallback active');
+                console.log('Currency fallback active');
             }
         }
 
@@ -663,29 +704,56 @@
             }
         }
 
-        // GEOLOCATION REAL WEATHER INTEGRATION
-        function initWeather() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    async (position) => {
-                        const lat = position.coords.latitude;
-                        const lon = position.coords.longitude;
-                        try {
-                            const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
-                            const data = await res.json();
-                            if (data && data.current_weather) {
-                                document.getElementById('weather-temp').innerText = `${Math.round(data.current_weather.temperature)}°`;
-                                document.getElementById('weather-city').innerText = 'Joriy Joylashuv';
-                            }
-                        } catch (e) {
-                            console.log('Weather fallback used');
+        // REGIONAL UZBEKISTON WEATHER WITH HOURLY FORECAST
+        async function fetchWeatherForRegion() {
+            const regionKey = document.getElementById('region-selector').value;
+            const regionData = uzbekistanRegions[regionKey] || uzbekistanRegions.shahrixon;
+
+            try {
+                const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${regionData.lat}&longitude=${regionData.lon}&current_weather=true&hourly=temperature_2m,weathercode`);
+                const data = await res.json();
+
+                if (data && data.current_weather) {
+                    const temp = Math.round(data.current_weather.temperature);
+                    document.getElementById('weather-temp').innerText = `${temp}°`;
+
+                    const code = data.current_weather.weathercode;
+                    document.getElementById('weather-condition').innerText = getWeatherText(code);
+
+                    // Render 24-hour forecast
+                    if (data.hourly && data.hourly.temperature_2m) {
+                        const container = document.getElementById('hourly-forecast-container');
+                        container.innerHTML = '';
+
+                        const currentHour = new Date().getHours();
+                        for (let i = currentHour; i < currentHour + 12; i++) {
+                            const idx = i % 24;
+                            const hourTime = `${idx < 10 ? '0' : ''}${idx}:00`;
+                            const hourTemp = Math.round(data.hourly.temperature_2m[i] || temp);
+
+                            const hourCard = document.createElement('div');
+                            hourCard.className = 'flex flex-col items-center min-w-[42px] bg-white/5 p-1.5 rounded-xl border border-white/5 flex-shrink-0';
+                            hourCard.innerHTML = `
+                                <span class="text-[9px] text-gray-400">${hourTime}</span>
+                                <span class="text-xs font-bold text-white my-0.5">${hourTemp}°</span>
+                                <i data-lucide="${idx > 6 && idx < 20 ? 'sun' : 'moon'}" class="w-3 h-3 text-cyan-300"></i>
+                            `;
+                            container.appendChild(hourCard);
                         }
-                    },
-                    (error) => {
-                        console.log('Geolocation disabled/rejected, showing default.');
+                        lucide.createIcons();
                     }
-                );
+                }
+            } catch (err) {
+                console.log('Weather fetch failed');
             }
+        }
+
+        function getWeatherText(code) {
+            if (code === 0) return 'Ochiq havo';
+            if (code <= 3) return 'Bultli';
+            if (code <= 65) return 'Yomg\'ir';
+            if (code <= 80) return 'Qor';
+            return 'Ochiq';
         }
     </script>
 </body>
