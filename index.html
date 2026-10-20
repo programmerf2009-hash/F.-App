@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="uz" class="h-full bg-slate-900 text-slate-100">
+<html lang="uz" class="h-full bg-slate-950 text-slate-100">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +11,6 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -125,16 +124,18 @@
             </div>
         </div>
 
+        <!-- User Search View -->
         <div id="view-search-users" class="hidden space-y-4">
             <div class="relative">
                 <i data-lucide="search" class="w-5 h-5 absolute left-3 top-3 text-slate-400"></i>
-                <input type="text" id="user-search-input" oninput="renderAccountSearchResults()" placeholder="@nickname yoki ism bo'yicha qidirish..." class="w-full bg-slate-800 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500">
+                <input type="text" id="user-search-input" oninput="renderAccountSearchResults()" placeholder="@nickname yoki ism bo'yicha qidirish..." class="w-full bg-slate-800 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-white">
             </div>
             <div id="users-search-list" class="space-y-2">
                 <!-- User search results injected here -->
             </div>
         </div>
 
+        <!-- Music Player View -->
         <div id="view-music" class="hidden space-y-4">
             <div class="bg-gradient-to-br from-indigo-900/40 to-purple-900/40 rounded-2xl p-5 border border-indigo-500/30 text-center space-y-4 relative">
                 <div class="w-28 h-28 mx-auto rounded-2xl bg-indigo-600/30 border border-indigo-400/30 flex items-center justify-center shadow-xl overflow-hidden">
@@ -173,6 +174,7 @@
             </div>
         </div>
 
+        <!-- Widgets View -->
         <div id="view-widgets" class="hidden space-y-4">
             <!-- Currency Rates Widget -->
             <div class="bg-slate-800/80 rounded-2xl p-4 border border-slate-700/60 space-y-3">
@@ -207,6 +209,7 @@
             </div>
         </div>
 
+        <!-- Profile View -->
         <div id="view-profile" class="hidden space-y-4">
             <div class="bg-slate-800/80 rounded-2xl p-4 border border-slate-700/60 text-center relative overflow-hidden">
                 <div class="w-20 h-20 rounded-full bg-indigo-600 mx-auto flex items-center justify-center text-2xl font-bold text-white uppercase border-4 border-slate-900 shadow-xl overflow-hidden" id="profile-avatar-container">
@@ -345,10 +348,9 @@
 <script>
     let currentActiveTab = 'home';
     
-    // Persistent Stores
+    // Persistent Local Cache
     let usersDB = JSON.parse(localStorage.getItem('F_APP_USERS_CACHE') || '{}');
     let postsDB = JSON.parse(localStorage.getItem('F_APP_POSTS_CACHE') || '[]');
-    let friendsDB = JSON.parse(localStorage.getItem('F_APP_FRIENDS_CACHE') || '{}');
     let commentsDB = JSON.parse(localStorage.getItem('F_APP_COMMENTS_CACHE') || '{}');
 
     // Default Playlist tracks
@@ -372,7 +374,6 @@
     function saveLocalCaches() {
         localStorage.setItem('F_APP_USERS_CACHE', JSON.stringify(usersDB));
         localStorage.setItem('F_APP_POSTS_CACHE', JSON.stringify(postsDB));
-        localStorage.setItem('F_APP_FRIENDS_CACHE', JSON.stringify(friendsDB));
         localStorage.setItem('F_APP_COMMENTS_CACHE', JSON.stringify(commentsDB));
         localStorage.setItem('F_APP_PLAYLIST', JSON.stringify(musicPlaylist));
     }
