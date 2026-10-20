@@ -1,1445 +1,788 @@
 <!DOCTYPE html>
-<html lang="uz">
+<html lang="uz" class="h-full bg-slate-900 text-slate-100">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>F App - Super App Ecosystem</title>
+
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "AIzaSyDemoKeyForPublicTestingOnly12345",
+            authDomain: "f-app-demo.firebaseapp.com",
+            projectId: "f-app-demo",
+            storageBucket: "f-app-demo.appspot.com",
+            messagingSenderId: "1234567890",
+            appId: "1:1234567890:web:demo"
+        };
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'fapp-global-v1';
+
+        try {
+            const app = initializeApp(firebaseConfig);
+            const auth = getAuth(app);
+            const db = getFirestore(app);
+
+            window.db = db;
+            window.auth = auth;
+            window.appId = appId;
+            window.firestoreUtils = { doc, getDoc, setDoc, updateDoc, collection, onSnapshot };
+
+            signInAnonymously(auth).then(() => {
+                if (typeof window.initGlobalCloudListeners === 'function') {
+                    window.initGlobalCloudListeners();
+                }
+            }).catch(err => {
+                if (typeof window.initGlobalCloudListeners === 'function') {
+                    window.initGlobalCloudListeners();
+                }
+            });
+        } catch (e) {
+            console.warn("Firebase Init Fallback:", e);
+        }
+    </script>
+
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        navy: {
-                            base: '#07111F',
-                            deep: '#071A33'
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
                         }
                     }
                 }
             }
-        }
+        };
     </script>
+
     <style>
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        /* Dark Mode Theme */
-        body.dark {
-            background-color: #090314;
-            color: #ffffff;
-        }
-
-        .dark .cosmic-bg {
-            background: 
-                radial-gradient(circle at 50% 20%, rgba(147, 51, 234, 0.3) 0%, transparent 55%),
-                radial-gradient(circle at 80% 60%, rgba(59, 130, 246, 0.25) 0%, transparent 50%),
-                radial-gradient(circle at 10% 80%, rgba(168, 85, 247, 0.15) 0%, transparent 45%),
-                linear-gradient(180deg, #070b19 0%, #0d1527 50%, #060913 100%);
-        }
-
-        .dark .glass-panel {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-        }
-
-        .dark .glass-card {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .dark .glass-input {
-            background: rgba(255, 255, 255, 0.07);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            color: white;
-        }
-
-        /* Light Mode Theme */
-        body.light {
-            background-color: #f0f4f8;
-            color: #0f172a;
-        }
-
-        .light .cosmic-bg {
-            background: 
-                radial-gradient(circle at 50% 20%, rgba(147, 51, 234, 0.08) 0%, transparent 55%),
-                radial-gradient(circle at 80% 60%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
-                linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
-        }
-
-        .light .glass-panel {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(0, 0, 0, 0.08);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
-        }
-
-        .light .glass-card {
-            background: #ffffff;
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(0, 0, 0, 0.06);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-        }
-
-        .light .glass-input {
-            background: #f8fafc;
-            border: 1px solid #cbd5e1;
-            color: #0f172a;
-        }
-
-        .light .text-white { color: #0f172a !important; }
-        .light .text-gray-300 { color: #334155 !important; }
-        .light .text-gray-400 { color: #64748b !important; }
-        .light .text-cyan-300 { color: #0284c7 !important; }
-        .light .text-purple-300 { color: #7e22ce !important; }
-        .light .text-amber-300 { color: #d97706 !important; }
-
-        .glass-input:focus {
-            outline: none;
-            border-color: #38bdf8;
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
-        }
-
-        @keyframes auraPulse {
-            0%, 100% { opacity: 0.5; transform: scale(1); }
-            50% { opacity: 0.8; transform: scale(1.05); }
-        }
-
-        .animate-aura {
-            animation: auraPulse 5s ease-in-out infinite;
-        }
-
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 9999px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
     </style>
 </head>
-<body id="app-body" class="dark min-h-screen w-screen cosmic-bg relative select-none overflow-x-hidden flex flex-col items-center justify-start p-0 sm:p-4">
+<body class="h-full bg-slate-950 text-slate-100 flex flex-col overflow-hidden">
 
-    <!-- Background glow elements -->
-    <div class="fixed w-[300px] h-[300px] sm:w-[500px] sm:h-[500px] bg-purple-600/20 rounded-full blur-[120px] animate-aura pointer-events-none top-0 left-1/2 -translate-x-1/2"></div>
-
-    <!-- MAIN WRAPPER CONTAINER -->
-    <div id="app-root" class="relative z-10 w-full max-w-md sm:max-w-xl mx-auto min-h-screen flex flex-col pb-24">
-
-        <!-- ==================== SPLASH SCREEN ==================== -->
-        <div id="splash-screen" class="flex flex-col items-center justify-center min-h-screen w-full transition-all duration-700">
-            <div class="relative w-44 h-44 sm:w-56 sm:h-56 flex items-center justify-center">
-                <img src="fapplogo2.png" 
-                     alt="F App Logo" 
-                     class="w-full h-full object-contain filter drop-shadow-[0_0_35px_rgba(168,85,247,0.75)] animate-pulse"
-                     onerror="this.style.display='none'; document.getElementById('fallback-logo').classList.remove('hidden');" />
-                <div id="fallback-logo" class="hidden w-full h-full flex items-center justify-center">
-                    <span class="text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">F</span>
-                </div>
-            </div>
-            
-            <div class="w-48 h-1.5 bg-white/10 rounded-full mt-8 overflow-hidden relative">
-                <div id="splash-progress" class="h-full bg-gradient-to-r from-cyan-400 to-purple-500 w-0 transition-all duration-[3000ms] ease-linear"></div>
-            </div>
-            <p class="mt-3 text-cyan-300/80 text-[11px] tracking-widest font-medium uppercase">Yuklanmoqda...</p>
+<div id="app" class="flex flex-col h-full w-full max-w-md mx-auto bg-slate-900 shadow-2xl relative border-x border-slate-800">
+    
+    <!-- Top Navigation Header -->
+    <header class="flex items-center justify-between px-4 py-3 bg-slate-900/90 backdrop-blur border-b border-slate-800 sticky top-0 z-40">
+        <div class="flex items-center gap-2 cursor-pointer" onclick="switchTab('home')">
+            <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white font-black text-lg shadow-lg shadow-indigo-500/20">F</div>
+            <span class="font-bold text-lg tracking-tight text-white">F App</span>
         </div>
-
-        <!-- ==================== AUTH SCREEN ==================== -->
-        <div id="auth-screen" class="hidden w-full flex flex-col items-center my-auto py-8 px-4">
-            
-            <div class="flex flex-col items-center mb-6">
-                <img src="fapplogo2.png" alt="F App Logo" class="w-20 h-20 sm:w-24 sm:h-24 object-contain filter drop-shadow-[0_0_20px_rgba(168,85,247,0.6)]" onerror="this.src='https://placehold.co/80x80/1677FF/ffffff?text=F'" />
-                <h1 class="text-2xl font-bold tracking-tight text-white mt-1">F App</h1>
-            </div>
-
-            <div class="w-full glass-panel rounded-3xl p-6 sm:p-8 shadow-2xl relative border border-white/10">
-
-                <div id="auth-alert" class="hidden mb-4 p-3 rounded-xl text-xs font-medium border text-center transition-all"></div>
-
-                <!-- LOGIN FORM -->
-                <div id="login-form-container">
-                    <h2 class="text-lg font-semibold text-white mb-6 text-center">Xush kelibsiz</h2>
-                    
-                    <form onsubmit="handleLogin(event)" class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-medium text-gray-300 mb-1.5 ml-1">Nickname</label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400 text-xs">@</span>
-                                <input type="text" id="login-nickname" required placeholder="fayzillo_009" class="w-full glass-input rounded-2xl py-3 pl-9 pr-4 text-xs font-medium placeholder-gray-500">
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-medium text-gray-300 mb-1.5 ml-1">Parol</label>
-                            <div class="relative">
-                                <input type="password" id="login-password" required placeholder="••••••••" class="w-full glass-input rounded-2xl py-3 px-4 text-xs font-medium placeholder-gray-500">
-                                <button type="button" onclick="togglePassword('login-password')" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-white">
-                                    <i data-lucide="eye" class="w-4 h-4"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <button type="submit" class="w-full mt-6 py-3.5 px-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold rounded-2xl shadow-lg shadow-purple-600/30 transition-all active:scale-95 text-xs">
-                            Log In
-                        </button>
-                    </form>
-
-                    <div class="mt-6 text-center border-t border-white/10 pt-4">
-                        <p class="text-xs text-gray-400 mb-3">Akkountingiz yo'qmi?</p>
-                        <button onclick="switchAuthTab('signup')" class="w-full py-3 px-4 glass-input rounded-2xl text-xs font-medium text-cyan-300 hover:bg-white/10 transition-all border border-cyan-500/30">
-                            Sign Up (Yangi hisob yaratish)
-                        </button>
-                    </div>
-                </div>
-
-                <!-- SIGN UP FORM -->
-                <div id="signup-form-container" class="hidden">
-                    <h2 class="text-lg font-semibold text-white mb-4 text-center">Yangi hisob yaratish</h2>
-                    
-                    <form onsubmit="handleSignUp(event)" class="space-y-3">
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-xs text-gray-300 mb-1 ml-1">Ism</label>
-                                <input type="text" id="signup-firstname" required placeholder="Ismingiz" class="w-full glass-input rounded-xl py-2.5 px-3 text-xs">
-                            </div>
-                            <div>
-                                <label class="block text-xs text-gray-300 mb-1 ml-1">Familiya</label>
-                                <input type="text" id="signup-lastname" required placeholder="Familiyangiz" class="w-full glass-input rounded-xl py-2.5 px-3 text-xs">
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-xs text-gray-300 mb-1 ml-1">Yosh</label>
-                                <input type="number" id="signup-age" min="7" max="100" required placeholder="18" class="w-full glass-input rounded-xl py-2.5 px-3 text-xs">
-                            </div>
-                            <div>
-                                <label class="block text-xs text-gray-300 mb-1 ml-1">Jins</label>
-                                <select id="signup-gender" required class="w-full glass-input rounded-xl py-2.5 px-3 text-xs bg-navy-base text-white">
-                                    <option value="male">Erkak</option>
-                                    <option value="female">Ayol</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs text-gray-300 mb-1 ml-1">Nickname yaratish</label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 text-xs">@</span>
-                                <input type="text" id="signup-nickname" oninput="validateNicknameLive()" required placeholder="fayzillo_009" class="w-full glass-input rounded-xl py-2.5 pl-7 pr-3 text-xs">
-                            </div>
-                            <ul class="mt-1.5 space-y-0.5 text-[10px] text-gray-400 ml-1">
-                                <li id="rule-lowercase">• Faqat kichik harflar</li>
-                                <li id="rule-letters">• Kamida 2 ta harf</li>
-                                <li id="rule-symbol">• Kamida 1 ta nuqta (.) yoki pastki chiziq (_)</li>
-                                <li id="rule-digits">• Kamida 2 ta raqam</li>
-                            </ul>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs text-gray-300 mb-1 ml-1">Parol yaratish</label>
-                            <input type="password" id="signup-password" oninput="validatePasswordLive()" required placeholder="Kamida 8 ta belgi" class="w-full glass-input rounded-xl py-2.5 px-3 text-xs">
-                            <p id="rule-password-length" class="mt-1 text-[10px] text-gray-400 ml-1">• Kamida 8 ta belgi</p>
-                        </div>
-
-                        <button type="submit" class="w-full mt-4 py-3 px-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-purple-600/30 transition-all">
-                            Ro'yxatdan o'tish
-                        </button>
-                    </form>
-
-                    <div class="mt-4 text-center border-t border-white/10 pt-3">
-                        <button onclick="switchAuthTab('login')" class="text-xs text-cyan-300 hover:underline">
-                            Akkountingiz bormi? Log In
-                        </button>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- ==================== MAIN HOME SCREEN ==================== -->
-        <div id="home-screen" class="hidden w-full flex flex-col pt-3 px-3 sm:px-0">
-            
-            <!-- HEADER -->
-            <header class="flex items-center justify-between py-2 px-1 mb-4">
-                <div class="flex items-center space-x-2.5">
-                    <img src="fapplogo2.png" alt="F App Logo" class="w-9 h-9 object-contain drop-shadow-[0_0_12px_rgba(56,189,248,0.6)]" onerror="this.src='https://placehold.co/40x40/1677FF/ffffff?text=F'">
-                    <span class="text-xl font-extrabold tracking-tight text-white">F App</span>
-                </div>
-
-                <div class="flex items-center space-x-2">
-                    <button onclick="switchTab('search-users')" class="p-2 text-gray-300 hover:text-white transition-colors rounded-full hover:bg-white/10">
-                        <i data-lucide="search" class="w-5 h-5"></i>
-                    </button>
-                    <div onclick="switchTab('profile')" class="cursor-pointer w-9 h-9 rounded-full bg-white/15 border border-white/30 flex items-center justify-center text-white shadow-md overflow-hidden">
-                        <i data-lucide="user" class="w-5 h-5 text-white"></i>
-                    </div>
-                </div>
-            </header>
-
-            <!-- 1. CURRENCY EXCHANGE CARD -->
-            <section class="glass-card rounded-2xl p-3 mb-4 border border-white/10">
-                <div class="flex items-center justify-between mb-2 px-1">
-                    <span class="text-[11px] font-medium text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
-                        <i data-lucide="trending-up" class="w-3.5 h-3.5 text-cyan-400"></i> Valyuta Kurslari (Real vaqt)
-                    </span>
-                    <button onclick="fetchExchangeRates()" class="text-[10px] text-cyan-400 hover:underline flex items-center gap-1">
-                        <i data-lucide="refresh-cw" class="w-3 h-3"></i> Yangilash
-                    </button>
-                </div>
-
-                <div class="grid grid-cols-3 gap-2 text-center">
-                    <div class="bg-white/5 rounded-xl p-2 border border-white/5 flex flex-col items-center">
-                        <div class="flex items-center space-x-1 text-xs font-semibold text-white">
-                            <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-                            <span>USD</span>
-                        </div>
-                        <span id="rate-usd" class="text-xs font-bold text-cyan-300 mt-1">12,850</span>
-                        <span class="text-[9px] text-emerald-400 mt-0.5 flex items-center gap-0.5">
-                            <i data-lucide="arrow-up-right" class="w-2.5 h-2.5"></i> +0.15%
-                        </span>
-                    </div>
-
-                    <div class="bg-white/5 rounded-xl p-2 border border-white/5 flex flex-col items-center">
-                        <div class="flex items-center space-x-1 text-xs font-semibold text-white">
-                            <span class="w-2 h-2 rounded-full bg-purple-500"></span>
-                            <span>EUR</span>
-                        </div>
-                        <span id="rate-eur" class="text-xs font-bold text-cyan-300 mt-1">13,920</span>
-                        <span class="text-[9px] text-emerald-400 mt-0.5 flex items-center gap-0.5">
-                            <i data-lucide="arrow-up-right" class="w-2.5 h-2.5"></i> +0.22%
-                        </span>
-                    </div>
-
-                    <div class="bg-white/5 rounded-xl p-2 border border-white/5 flex flex-col items-center">
-                        <select id="currency-select" onchange="updateSelectedCurrency()" class="bg-transparent text-[11px] font-semibold text-white focus:outline-none cursor-pointer text-center">
-                            <option value="RUB" class="bg-navy-base text-white">RUB</option>
-                            <option value="CNY" class="bg-navy-base text-white">CNY</option>
-                            <option value="GBP" class="bg-navy-base text-white">GBP</option>
-                            <option value="KZT" class="bg-navy-base text-white">KZT</option>
-                        </select>
-                        <span id="rate-custom" class="text-xs font-bold text-cyan-300 mt-1">132.50</span>
-                        <span class="text-[9px] text-red-400 mt-0.5 flex items-center gap-0.5">
-                            <i data-lucide="arrow-down-right" class="w-2.5 h-2.5"></i> -0.05%
-                        </span>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 2. UZBEKISTON REGIONS WEATHER WIDGET -->
-            <section class="glass-card rounded-2xl p-4 mb-5 border border-white/10 relative overflow-hidden">
-                <div class="flex justify-between items-start mb-3">
-                    <div>
-                        <div class="flex items-center space-x-1 text-cyan-400 text-xs font-medium mb-1">
-                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
-                            <select id="region-selector" onchange="fetchWeatherForRegion()" class="bg-transparent border-b border-cyan-500/40 text-cyan-300 text-xs font-semibold focus:outline-none cursor-pointer">
-                                <option value="shahrixon" class="bg-navy-base text-white">Andijon, Shahrixon tumani</option>
-                                <option value="andijan" class="bg-navy-base text-white">Andijon shahri</option>
-                                <option value="tashkent" class="bg-navy-base text-white">Toshkent shahri</option>
-                                <option value="samarkand" class="bg-navy-base text-white">Samarqand</option>
-                                <option value="namangan" class="bg-navy-base text-white">Namangan</option>
-                                <option value="fergana" class="bg-navy-base text-white">Farg'ona</option>
-                                <option value="bukhara" class="bg-navy-base text-white">Buxoro</option>
-                                <option value="khiva" class="bg-navy-base text-white">Xiva / Xorazm</option>
-                                <option value="nukus" class="bg-navy-base text-white">Nukus / Qoraqalpog'iston</option>
-                                <option value="qashqadaryo" class="bg-navy-base text-white">Qarshi / Qashqadaryo</option>
-                                <option value="surxondaryo" class="bg-navy-base text-white">Termiz / Surxondaryo</option>
-                            </select>
-                        </div>
-                        <div class="flex items-baseline space-x-2 mt-1">
-                            <h2 id="weather-temp" class="text-4xl font-extrabold text-white tracking-tight">--°</h2>
-                            <span id="weather-condition" class="text-xs font-medium text-cyan-300">Yuklanmoqda...</span>
-                        </div>
-                    </div>
-                    
-                    <div class="flex flex-col items-end">
-                        <div class="p-2.5 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-white/10 text-cyan-300">
-                            <i id="weather-icon" data-lucide="sun" class="w-8 h-8"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-3 pt-3 border-t border-white/10">
-                    <span class="text-[10px] text-gray-400 uppercase tracking-wider block mb-2 font-semibold">Bugungi soatbay prognoz</span>
-                    <div id="hourly-forecast-container" class="flex space-x-3 overflow-x-auto no-scrollbar py-1">
-                        <div class="text-center min-w-[45px] text-[10px] text-gray-400">Loading...</div>
-                    </div>
-                </div>
-            </section>
-        </div>
-
-        <!-- ==================== SEARCH / ACCOUNTS TAB ==================== -->
-        <div id="search-users-screen" class="hidden w-full flex flex-col pt-4 px-3 sm:px-0">
-            <h2 class="text-lg font-bold text-white mb-3 flex items-center gap-2">
-                <i data-lucide="user-search" class="w-5 h-5 text-cyan-400"></i>
-                Akkountlar Qidiruvi
-            </h2>
-
-            <!-- Search Input -->
-            <div class="relative mb-4">
-                <input type="text" id="main-account-search" oninput="renderAccountSearchResults()" placeholder="Nickname, Ism yoki Familiya..." class="w-full glass-input rounded-2xl py-3 pl-10 pr-4 text-xs font-medium placeholder-gray-400">
-                <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3.5 text-gray-400"></i>
-            </div>
-
-            <!-- Search Results Container -->
-            <div id="account-search-results" class="space-y-3">
-            </div>
-        </div>
-
-        <!-- ==================== PUBLIC USER PROFILE VIEW MODAL ==================== -->
-        <div id="public-profile-modal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-md p-0 sm:p-4">
-            <div class="glass-panel w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 border border-white/15 max-h-[90vh] overflow-y-auto no-scrollbar">
-                <div class="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
-                    <span class="text-xs font-bold text-cyan-300">Profil ma'lumotlari</span>
-                    <button onclick="closePublicProfileModal()" class="text-gray-400 hover:text-white p-1">
-                        <i data-lucide="x" class="w-5 h-5"></i>
-                    </button>
-                </div>
-
-                <div id="public-profile-content">
-                </div>
-            </div>
-        </div>
-
-        <!-- ==================== PROFILE SCREEN ==================== -->
-        <div id="profile-screen" class="hidden w-full flex flex-col pt-4 px-3 sm:px-0">
-            <!-- Profile Top Bar -->
-            <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center space-x-2">
-                    <span id="profile-username" class="text-base font-bold text-white">@nickname</span>
-                    <i data-lucide="shield-check" class="w-4 h-4 text-cyan-400"></i>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <button onclick="openAddPostModal()" class="p-2 glass-card rounded-xl text-cyan-300 hover:text-white border border-white/10">
-                        <i data-lucide="plus-square" class="w-5 h-5"></i>
-                    </button>
-                    <button onclick="switchTab('settings')" class="p-2 glass-card rounded-xl text-gray-300 hover:text-white border border-white/10">
-                        <i data-lucide="settings" class="w-5 h-5"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Profile Info Card -->
-            <div class="glass-card rounded-2xl p-4 mb-4 border border-white/10">
-                <div class="flex items-center justify-between">
-                    <div class="relative group">
-                        <div class="w-20 h-20 rounded-full p-[2px] bg-gradient-to-tr from-cyan-400 via-indigo-500 to-purple-500">
-                            <div id="profile-avatar" class="w-full h-full rounded-full bg-navy-base border-2 border-navy-base flex items-center justify-center overflow-hidden text-white font-bold text-xl">
-                                <i data-lucide="user" class="w-10 h-10 text-white/80"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-around items-center flex-1 ml-4 text-center">
-                        <div>
-                            <span id="stat-posts" class="block text-base font-bold text-white">0</span>
-                            <span class="text-[10px] text-gray-400">Postlar</span>
-                        </div>
-                        <div onclick="openFriendsModal('friends')" class="cursor-pointer hover:opacity-80 transition-opacity">
-                            <span id="stat-friends" class="block text-base font-bold text-cyan-300">0</span>
-                            <span class="text-[10px] text-gray-400">Do'stlar</span>
-                        </div>
-                        <div onclick="openFriendsModal('requests')" class="cursor-pointer hover:opacity-80 transition-opacity">
-                            <span id="stat-requests" class="block text-base font-bold text-purple-400">0</span>
-                            <span class="text-[10px] text-gray-400">So'rovlar</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- User Personal Attributes -->
-                <div class="mt-3.5 space-y-2 border-t border-white/10 pt-3">
-                    <h3 id="profile-fullname" class="text-xs font-bold text-white">Ism Familiya</h3>
-                    
-                    <p id="profile-occupation-badge" class="text-[11px] font-medium text-cyan-300 flex items-center gap-1.5">
-                        <i data-lucide="briefcase" class="w-3.5 h-3.5 text-cyan-400"></i> <span id="profile-occupation">Kasbi ko'rsatilmagan</span>
-                    </p>
-
-                    <p id="profile-motto-box" class="text-[11px] text-amber-300/90 italic flex items-center gap-1.5">
-                        <i data-lucide="quote" class="w-3.5 h-3.5 text-amber-400"></i> "<span id="profile-motto">Shior kiritilmagan</span>"
-                    </p>
-
-                    <!-- Real Audio Player Section -->
-                    <div id="profile-music-box" class="mt-2 p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20">
-                        <div class="flex items-center gap-1.5 mb-1.5">
-                            <i data-lucide="music" class="w-3.5 h-3.5 text-purple-400"></i>
-                            <span id="profile-music-title" class="text-[11px] font-semibold text-purple-300">Musiqa yuklanmagan</span>
-                        </div>
-                        <audio id="profile-audio-player" controls class="w-full h-8 hidden rounded-lg"></audio>
-                    </div>
-
-                    <p id="profile-bio-box" class="text-[11px] text-gray-300 mt-1 flex items-start gap-1.5">
-                        <i data-lucide="info" class="w-3.5 h-3.5 text-gray-400 mt-0.5"></i> <span id="profile-bio">O'zi haqida ma'lumot yo'q</span>
-                    </p>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="grid grid-cols-2 gap-2 mt-4">
-                    <button onclick="switchTab('settings')" class="py-2 px-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-all">
-                        <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
-                        Profilni tahrirlash
-                    </button>
-                    <button onclick="openFriendsModal('friends')" class="py-2 px-3 glass-input rounded-xl text-xs font-semibold text-gray-200 flex items-center justify-center gap-1.5 hover:bg-white/10 transition-all">
-                        <i data-lucide="users" class="w-3.5 h-3.5"></i>
-                        Mening do'stlarim
-                    </button>
-                </div>
-            </div>
-
-            <!-- Media Feed Tabs -->
-            <div class="flex border-b border-white/10 mb-3">
-                <button id="feed-tab-all" onclick="setFeedFilter('all')" class="flex-1 py-2 text-center text-xs font-semibold border-b-2 border-cyan-400 text-cyan-300 flex items-center justify-center gap-1.5">
-                    <i data-lucide="grid" class="w-3.5 h-3.5"></i> Barchasi
-                </button>
-                <button id="feed-tab-photos" onclick="setFeedFilter('photo')" class="flex-1 py-2 text-center text-xs font-medium text-gray-400 hover:text-white border-b-2 border-transparent flex items-center justify-center gap-1.5">
-                    <i data-lucide="image" class="w-3.5 h-3.5"></i> Rasmlar
-                </button>
-                <button id="feed-tab-videos" onclick="setFeedFilter('video')" class="flex-1 py-2 text-center text-xs font-medium text-gray-400 hover:text-white border-b-2 border-transparent flex items-center justify-center gap-1.5">
-                    <i data-lucide="video" class="w-3.5 h-3.5"></i> Videolar
-                </button>
-            </div>
-
-            <!-- Posts Grid Container -->
-            <div id="posts-grid" class="grid grid-cols-3 gap-1.5 pb-20">
-            </div>
-
-            <div id="empty-posts-msg" class="hidden flex flex-col items-center justify-center py-10 text-center">
-                <div class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-gray-500 mb-2">
-                    <i data-lucide="camera" class="w-6 h-6"></i>
-                </div>
-                <p class="text-xs font-medium text-gray-400">Hozircha postlar yo'q</p>
-                <p class="text-[10px] text-gray-500 mt-0.5">Kompyuterdan rasm yoki video yuklash uchun + tugmasini bosing</p>
-            </div>
-        </div>
-
-        <!-- ==================== COMPLETE SETTINGS SCREEN ==================== -->
-        <div id="settings-screen" class="hidden w-full flex flex-col pt-4 px-3 sm:px-0 space-y-4 pb-12">
-            <h2 class="text-lg font-bold text-white mb-2 flex items-center gap-2">
-                <i data-lucide="sliders" class="w-5 h-5 text-cyan-400"></i>
-                Ilovaning Barcha Sozlamalari
-            </h2>
-
-            <!-- 1. APPEARANCE & THEME SETTINGS -->
-            <div class="glass-card rounded-2xl p-4 border border-white/10">
-                <h3 class="text-xs font-bold text-cyan-300 uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <i data-lucide="palette" class="w-4 h-4"></i> Tashqi Ko'rinish
-                </h3>
-                <div class="flex items-center justify-between py-2 border-b border-white/5">
-                    <div>
-                        <span class="text-xs font-semibold text-white block">Mavzu (Theme)</span>
-                        <span class="text-[10px] text-gray-400">Qorong'u yoki yorug' rejimni tanlang</span>
-                    </div>
-                    <button onclick="toggleTheme()" id="theme-toggle-btn" class="px-3 py-1.5 glass-input rounded-xl text-xs font-medium text-amber-300 flex items-center gap-1.5">
-                        <i data-lucide="moon" class="w-3.5 h-3.5"></i> Dark Mode
-                    </button>
-                </div>
-                <div class="flex items-center justify-between py-2 mt-2">
-                    <div>
-                        <span class="text-xs font-semibold text-white block">Ilova Tili (Language)</span>
-                        <span class="text-[10px] text-gray-400">Mavjud tillar ro'yxati</span>
-                    </div>
-                    <select id="app-language" onchange="changeLanguage(this.value)" class="glass-input rounded-xl py-1 px-2 text-xs bg-navy-base text-white">
-                        <option value="uz">O'zbekcha</option>
-                        <option value="ru">Русский</option>
-                        <option value="en">English</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- 2. PROFILE EDITING -->
-            <div class="glass-card rounded-2xl p-4 border border-white/10">
-                <h3 class="text-xs font-bold text-cyan-300 uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <i data-lucide="user-check" class="w-4 h-4"></i> Profil Ma'lumotlarini Tahrirlash
-                </h3>
-                <form onsubmit="handleSaveSettings(event)" class="space-y-3">
-                    <div>
-                        <label class="block text-xs text-gray-300 mb-1">Profil Rasmi (Kompyuterdan fayl yuklash)</label>
-                        <input type="file" id="setting-avatar-file" accept="image/*" class="w-full glass-input rounded-xl py-2 px-3 text-xs text-gray-300 cursor-pointer">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs text-gray-300 mb-1">Musiqa yuklash (.mp3 / audio fayl)</label>
-                        <input type="file" id="setting-music-file" accept="audio/*" class="w-full glass-input rounded-xl py-2 px-3 text-xs text-gray-300 cursor-pointer">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs text-gray-300 mb-1">Kasbingiz / Faoliyatingiz</label>
-                        <input type="text" id="setting-occupation" placeholder="Masalan: Dasturchi, Talaba..." class="w-full glass-input rounded-xl py-2.5 px-3 text-xs">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs text-gray-300 mb-1">Hayotdagi shioringiz</label>
-                        <input type="text" id="setting-motto" placeholder="Masalan: Harakatda barakat..." class="w-full glass-input rounded-xl py-2.5 px-3 text-xs">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs text-gray-300 mb-1">O'zingiz haqida ma'lumot</label>
-                        <textarea id="setting-bio" rows="2" placeholder="Qiziqishlaringiz..." class="w-full glass-input rounded-xl py-2.5 px-3 text-xs resize-none"></textarea>
-                    </div>
-
-                    <button type="submit" class="w-full py-3 bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 text-white font-bold rounded-xl text-xs shadow-lg shadow-cyan-600/30 active:scale-95 transition-all">
-                        Profil va fayllarni saqlash
-                    </button>
-                </form>
-            </div>
-
-            <!-- 3. NOTIFICATIONS & PRIVACY -->
-            <div class="glass-card rounded-2xl p-4 border border-white/10 space-y-3">
-                <h3 class="text-xs font-bold text-cyan-300 uppercase tracking-wider flex items-center gap-2">
-                    <i data-lucide="shield" class="w-4 h-4"></i> Bildirishnomalar va Maxfiylik
-                </h3>
-                <div class="flex items-center justify-between py-1">
-                    <span class="text-xs text-white">Yangi do'stlik bildirishnomalari</span>
-                    <input type="checkbox" checked class="w-4 h-4 accent-cyan-500 rounded cursor-pointer">
-                </div>
-                <div class="flex items-center justify-between py-1">
-                    <span class="text-xs text-white">Profilni faqat do'stlarga ko'rsatish</span>
-                    <input type="checkbox" checked class="w-4 h-4 accent-cyan-500 rounded cursor-pointer">
-                </div>
-            </div>
-
-            <!-- 4. LOGOUT BUTTON -->
-            <button onclick="handleLogout()" class="w-full py-3 bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 font-semibold rounded-xl text-xs transition-all flex items-center justify-center gap-2">
-                <i data-lucide="log-out" class="w-4 h-4"></i>
-                Hisobdan chiqish
+        <div class="flex items-center gap-2">
+            <button onclick="switchTab('widgets')" class="p-2 rounded-full hover:bg-slate-800 text-slate-300 transition relative" title="Vidjetlar">
+                <i data-lucide="layout-grid" class="w-5 h-5"></i>
+            </button>
+            <button onclick="switchTab('music')" class="p-2 rounded-full hover:bg-slate-800 text-slate-300 transition relative" title="Musiqa">
+                <i data-lucide="music" class="w-5 h-5"></i>
+                <span id="music-indicator" class="hidden absolute top-1 right-1 w-2 h-2 bg-indigo-500 rounded-full animate-ping"></span>
+            </button>
+            <button onclick="switchTab('search-users')" class="p-2 rounded-full hover:bg-slate-800 text-slate-300 transition" title="Qidiruv">
+                <i data-lucide="search" class="w-5 h-5"></i>
             </button>
         </div>
+    </header>
 
-        <!-- ==================== FRIENDS & REQUESTS MODAL ==================== -->
-        <div id="friends-modal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4">
-            <div class="glass-panel w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 border border-white/15 max-h-[85vh] flex flex-col">
-                <div class="flex items-center justify-between pb-3 border-b border-white/10">
-                    <h3 id="modal-title" class="text-sm font-bold text-white flex items-center gap-2">
-                        <i data-lucide="users" class="w-4 h-4 text-cyan-400"></i>
-                        Do'stlar bo'limi
-                    </h3>
-                    <button onclick="closeFriendsModal()" class="text-gray-400 hover:text-white p-1">
-                        <i data-lucide="x" class="w-5 h-5"></i>
-                    </button>
-                </div>
-
-                <div class="flex space-x-2 my-3">
-                    <button id="modal-tab-friends" onclick="switchFriendsTab('friends')" class="flex-1 py-1.5 text-center text-xs font-medium rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
-                        Do'stlar (<span id="modal-friends-count">0</span>)
-                    </button>
-                    <button id="modal-tab-requests" onclick="switchFriendsTab('requests')" class="flex-1 py-1.5 text-center text-xs font-medium rounded-xl bg-white/5 text-gray-300 border border-white/10">
-                        So'rovlar (<span id="modal-requests-count">0</span>)
-                    </button>
-                </div>
-
-                <div id="modal-friends-list" class="overflow-y-auto space-y-2 flex-1 max-h-[350px] pr-1 no-scrollbar">
-                </div>
-            </div>
-        </div>
-
-        <!-- ==================== ADD POST MODAL (LOCAL FILE UPLOAD) ==================== -->
-        <div id="add-post-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <div class="glass-panel w-full max-w-sm rounded-3xl p-5 border border-white/15">
-                <div class="flex items-center justify-between pb-3 border-b border-white/10">
-                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                        <i data-lucide="upload-cloud" class="w-4 h-4 text-purple-400"></i>
-                        Fayl Yuklash (Kompyuterdan)
-                    </h3>
-                    <button onclick="closeAddPostModal()" class="text-gray-400 hover:text-white p-1">
-                        <i data-lucide="x" class="w-5 h-5"></i>
-                    </button>
-                </div>
-
-                <form onsubmit="handleCreatePost(event)" class="space-y-3 mt-4">
-                    <div>
-                        <label class="block text-xs text-gray-300 mb-1">Post turi</label>
-                        <select id="post-type" onchange="updateFileTypeAccept()" class="w-full glass-input rounded-xl py-2 px-3 text-xs bg-navy-base text-white">
-                            <option value="photo">Rasm (.png, .jpg)</option>
-                            <option value="video">Video (.mp4, .webm)</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs text-gray-300 mb-1">Faylni tanlang (Kompyuteringizdan)</label>
-                        <input type="file" id="post-file-input" required accept="image/*" class="w-full glass-input rounded-xl py-2 px-3 text-xs text-gray-300 cursor-pointer">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs text-gray-300 mb-1">Tavsif (Izoh)</label>
-                        <textarea id="post-caption" rows="2" placeholder="Do'stlaringiz uchun izoh..." class="w-full glass-input rounded-xl py-2 px-3 text-xs resize-none"></textarea>
-                    </div>
-
-                    <button type="submit" class="w-full py-2.5 px-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl shadow-md text-xs">
-                        Chop etish
-                    </button>
-                </form>
-            </div>
-        </div>
-
-        <!-- ==================== BOTTOM NAVIGATION (5 TABS) ==================== -->
-        <nav id="bottom-nav" class="hidden fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md sm:max-w-xl glass-panel border-t border-white/10 px-4 py-2.5 z-50 flex items-center justify-between">
-            <button id="nav-btn-home" onclick="switchTab('home')" class="flex flex-col items-center text-cyan-400 transition-all">
-                <i data-lucide="home" class="w-5 h-5"></i>
-                <span class="text-[10px] font-bold mt-1">Home</span>
-            </button>
-
-            <button id="nav-btn-profile" onclick="switchTab('profile')" class="flex flex-col items-center text-gray-400 hover:text-white transition-all">
-                <i data-lucide="user" class="w-5 h-5"></i>
-                <span class="text-[10px] font-medium mt-1">Profil</span>
-            </button>
-
-            <button id="nav-btn-chats" onclick="switchTab('chats')" class="flex flex-col items-center text-gray-500 hover:text-gray-300 transition-all">
-                <i data-lucide="message-square" class="w-5 h-5"></i>
-                <span class="text-[10px] font-medium mt-1">Xabarlar</span>
-            </button>
-
-            <button id="nav-btn-search-users" onclick="switchTab('search-users')" class="flex flex-col items-center text-gray-400 hover:text-white transition-all">
-                <i data-lucide="user-search" class="w-5 h-5"></i>
-                <span class="text-[10px] font-medium mt-1">Qidiruv</span>
-            </button>
-
-            <button id="nav-btn-settings" onclick="switchTab('settings')" class="flex flex-col items-center text-gray-400 hover:text-white transition-all">
-                <i data-lucide="settings" class="w-5 h-5"></i>
-                <span class="text-[10px] font-medium mt-1">Sozlamalar</span>
-            </button>
-        </nav>
-
-    </div>
-
-    <script>
-        let currentFeedFilter = 'all';
-        let currentActiveTab = 'home';
+    <main id="main-container" class="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-4 pb-24">
         
-        let friendsDB = JSON.parse(localStorage.getItem('fapp_friends_db')) || {};
-        let postsDB = JSON.parse(localStorage.getItem('fapp_posts_db')) || [];
-        let usersDB = JSON.parse(localStorage.getItem('fapp_users')) || {};
+        <!-- Feed View -->
+        <div id="view-home" class="space-y-4">
+            <!-- Create Post Bar -->
+            <div class="p-3 bg-slate-800/80 rounded-2xl border border-slate-700/60 flex items-center justify-between gap-3 shadow-sm">
+                <div id="home-user-avatar" class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-white uppercase text-sm">U</div>
+                <button onclick="openAddPostModal()" class="flex-1 text-left bg-slate-900/70 hover:bg-slate-900 px-4 py-2.5 rounded-xl text-slate-400 text-sm border border-slate-700/40 transition">
+                    Nimalar haqida o'ylayapsiz?
+                </button>
+                <button onclick="openAddPostModal()" class="p-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition shadow-lg shadow-indigo-600/30">
+                    <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                </button>
+            </div>
 
-        lucide.createIcons();
+            <!-- Posts Stream -->
+            <div id="posts-feed" class="space-y-4">
+                <div class="text-center py-10 text-slate-500 text-sm">Postlar yuklanmoqda...</div>
+            </div>
+        </div>
 
-        const uzbekistanRegions = {
-            shahrixon: { lat: 40.7139, lon: 72.0578, name: "Andijon, Shahrixon tumani" },
-            andijan: { lat: 40.7821, lon: 72.3442, name: "Andijon shahri" },
-            tashkent: { lat: 41.2995, lon: 69.2401, name: "Toshkent shahri" },
-            samarkand: { lat: 39.6542, lon: 66.9597, name: "Samarqand shahri" },
-            namangan: { lat: 40.9983, lon: 71.6726, name: "Namangan shahri" },
-            fergana: { lat: 40.3842, lon: 71.7843, name: "Farg'ona shahri" },
-            bukhara: { lat: 39.7747, lon: 64.4286, name: "Buxoro shahri" },
-            khiva: { lat: 41.3783, lon: 60.3639, name: "Xiva shahri" },
-            nukus: { lat: 42.4602, lon: 59.6178, name: "Nukus shahri" },
-            qashqadaryo: { lat: 38.8606, lon: 65.7892, name: "Qarshi shahri" },
-            surxondaryo: { lat: 37.2242, lon: 67.2783, name: "Termiz shahri" }
-        };
+        <div id="view-search-users" class="hidden space-y-4">
+            <div class="relative">
+                <i data-lucide="search" class="w-5 h-5 absolute left-3 top-3 text-slate-400"></i>
+                <input type="text" id="user-search-input" oninput="renderAccountSearchResults()" placeholder="@nickname yoki ism bo'yicha qidirish..." class="w-full bg-slate-800 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500">
+            </div>
+            <div id="users-search-list" class="space-y-2">
+                <!-- User search results injected here -->
+            </div>
+        </div>
 
-        window.addEventListener('load', () => {
-            startSplashTimer();
+        <div id="view-music" class="hidden space-y-4">
+            <div class="bg-gradient-to-br from-indigo-900/40 to-purple-900/40 rounded-2xl p-5 border border-indigo-500/30 text-center space-y-4 relative">
+                <div class="w-28 h-28 mx-auto rounded-2xl bg-indigo-600/30 border border-indigo-400/30 flex items-center justify-center shadow-xl overflow-hidden">
+                    <i data-lucide="disc" id="music-disc-icon" class="w-16 h-16 text-indigo-400"></i>
+                </div>
+                <div>
+                    <h3 id="current-track-title" class="font-bold text-white text-base">Musiqa tanlanmagan</h3>
+                    <p id="current-track-artist" class="text-xs text-slate-400">F App Media Player</p>
+                </div>
+
+                <!-- Custom Audio Control Bar -->
+                <audio id="audio-player" class="hidden" onended="nextTrack()"></audio>
+                
+                <div class="flex items-center justify-center gap-4 pt-2">
+                    <button onclick="prevTrack()" class="p-2.5 bg-slate-800 hover:bg-slate-700 rounded-full text-white transition"><i data-lucide="skip-back" class="w-5 h-5"></i></button>
+                    <button onclick="togglePlayMusic()" id="play-pause-btn" class="p-3.5 bg-indigo-600 hover:bg-indigo-500 rounded-full text-white transition shadow-lg shadow-indigo-600/40"><i data-lucide="play" class="w-6 h-6"></i></button>
+                    <button onclick="nextTrack()" class="p-2.5 bg-slate-800 hover:bg-slate-700 rounded-full text-white transition"><i data-lucide="skip-forward" class="w-5 h-5"></i></button>
+                </div>
+            </div>
+
+            <!-- Custom Music Upload -->
+            <div class="p-3 bg-slate-800/80 rounded-xl border border-slate-700/60 flex items-center justify-between gap-2">
+                <span class="text-xs text-slate-300 font-medium">O'zingizni mp3 trekingizni yuklang:</span>
+                <input type="file" id="music-file-input" accept="audio/mp3,audio/*" onchange="handleMusicUpload(event)" class="hidden">
+                <label for="music-file-input" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-medium cursor-pointer transition flex items-center gap-1">
+                    <i data-lucide="upload-cloud" class="w-4 h-4"></i> Yuklash
+                </label>
+            </div>
+
+            <!-- Music Playlist -->
+            <div class="space-y-2">
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Musiqalar Playlisti</h4>
+                <div id="playlist-container" class="space-y-2">
+                    <!-- Tracks dynamically loaded -->
+                </div>
+            </div>
+        </div>
+
+        <div id="view-widgets" class="hidden space-y-4">
+            <!-- Currency Rates Widget -->
+            <div class="bg-slate-800/80 rounded-2xl p-4 border border-slate-700/60 space-y-3">
+                <div class="flex justify-between items-center border-b border-slate-700/60 pb-2">
+                    <span class="font-bold text-sm text-white flex items-center gap-2"><i data-lucide="dollar-sign" class="w-4 h-4 text-emerald-400"></i> Valyuta Kurslari (CBU)</span>
+                    <span class="text-[10px] text-slate-400" id="currency-date">Bugungi</span>
+                </div>
+                <div class="grid grid-cols-3 gap-2 text-center" id="currency-rates-container">
+                    <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-700/40">
+                        <div class="text-[10px] text-slate-400">USD</div>
+                        <div class="text-xs font-bold text-emerald-400 mt-1" id="rate-usd">... so'm</div>
+                    </div>
+                    <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-700/40">
+                        <div class="text-[10px] text-slate-400">EUR</div>
+                        <div class="text-xs font-bold text-indigo-400 mt-1" id="rate-eur">... so'm</div>
+                    </div>
+                    <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-700/40">
+                        <div class="text-[10px] text-slate-400">RUB</div>
+                        <div class="text-xs font-bold text-purple-400 mt-1" id="rate-rub">... so'm</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weather Widget -->
+            <div class="bg-gradient-to-r from-blue-900/40 to-indigo-900/40 rounded-2xl p-4 border border-blue-500/30 flex items-center justify-between">
+                <div>
+                    <div class="text-xs text-blue-300 font-medium">Toshkent, O'zbekiston</div>
+                    <div class="text-2xl font-black text-white mt-1">+22°C</div>
+                    <div class="text-[10px] text-slate-400 mt-0.5">Musaffo havo, Qulay</div>
+                </div>
+                <i data-lucide="sun" class="w-12 h-12 text-yellow-400"></i>
+            </div>
+        </div>
+
+        <div id="view-profile" class="hidden space-y-4">
+            <div class="bg-slate-800/80 rounded-2xl p-4 border border-slate-700/60 text-center relative overflow-hidden">
+                <div class="w-20 h-20 rounded-full bg-indigo-600 mx-auto flex items-center justify-center text-2xl font-bold text-white uppercase border-4 border-slate-900 shadow-xl overflow-hidden" id="profile-avatar-container">
+                    <span id="profile-avatar-initials">U</span>
+                </div>
+                <h2 id="profile-fullname" class="text-xl font-bold mt-2 text-white">-- --</h2>
+                <p id="profile-nickname" class="text-sm text-indigo-400 font-medium">@nickname</p>
+                <p id="profile-motto" class="text-xs text-slate-400 italic mt-1">"Motto berilmagan"</p>
+
+                <div class="mt-4 flex justify-around border-t border-slate-700/60 pt-3 text-xs">
+                    <div>
+                        <div id="profile-posts-count" class="font-bold text-base text-slate-100">0</div>
+                        <div class="text-slate-400">Postlar</div>
+                    </div>
+                    <div>
+                        <div id="profile-friends-count" class="font-bold text-base text-slate-100">0</div>
+                        <div class="text-slate-400">Do'stlar</div>
+                    </div>
+                </div>
+
+                <div class="mt-4 flex gap-2">
+                    <button onclick="openEditProfileModal()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white text-xs py-2 rounded-xl transition">Profilni Tahrirlash</button>
+                    <button onclick="logoutUser()" class="px-4 bg-red-600/20 hover:bg-red-600/30 text-red-400 text-xs py-2 rounded-xl border border-red-500/30 transition">Chiqish</button>
+                </div>
+            </div>
+
+            <!-- User Personal Posts Stream -->
+            <div class="font-semibold text-sm text-slate-300">Mening postlarim</div>
+            <div id="profile-posts-feed" class="space-y-3">
+                <div class="text-center py-6 text-slate-500 text-xs">Sizda hali postlar yo'q.</div>
+            </div>
+        </div>
+    </main>
+
+    <nav class="absolute bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur border-t border-slate-800 flex justify-around items-center py-2 z-40">
+        <button onclick="switchTab('home')" id="nav-btn-home" class="flex flex-col items-center gap-1 text-indigo-400 font-medium text-xs">
+            <i data-lucide="home" class="w-5 h-5"></i>
+            <span>Asosiy</span>
+        </button>
+        <button onclick="switchTab('search-users')" id="nav-btn-search-users" class="flex flex-col items-center gap-1 text-slate-400 font-medium text-xs">
+            <i data-lucide="users" class="w-5 h-5"></i>
+            <span>Qidiruv</span>
+        </button>
+        <button onclick="switchTab('music')" id="nav-btn-music" class="flex flex-col items-center gap-1 text-slate-400 font-medium text-xs">
+            <i data-lucide="music" class="w-5 h-5"></i>
+            <span>Musiqa</span>
+        </button>
+        <button onclick="switchTab('profile')" id="nav-btn-profile" class="flex flex-col items-center gap-1 text-slate-400 font-medium text-xs">
+            <i data-lucide="user" class="w-5 h-5"></i>
+            <span>Profil</span>
+        </button>
+    </nav>
+</div>
+
+<!-- Auth Screen Overlay -->
+<div id="auth-screen" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-2xl space-y-4">
+        <div class="text-center">
+            <div class="w-12 h-12 rounded-2xl bg-indigo-600 mx-auto flex items-center justify-center text-white font-black text-2xl shadow-lg shadow-indigo-500/30 mb-2">F</div>
+            <h1 class="text-xl font-bold text-white">F App Ekosistemasiga Xush Kelibsiz</h1>
+            <p class="text-xs text-slate-400 mt-1">Akkauntingizga kiring yoki yangi hisob yarating</p>
+        </div>
+
+        <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-3">
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">Nickname</label>
+                <input type="text" id="auth-nickname" required placeholder="Masalan: ali_99" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+            </div>
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">Ismingiz</label>
+                <input type="text" id="auth-firstname" placeholder="Ali" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+            </div>
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">Parol</label>
+                <input type="password" id="auth-password" required placeholder="******" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+            </div>
+            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 rounded-xl transition text-sm">
+                Kirish / Ro'yxatdan o'tish
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Create Post Modal -->
+<div id="add-post-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-slate-900 rounded-2xl p-5 border border-slate-800 space-y-4">
+        <div class="flex justify-between items-center">
+            <h3 class="font-bold text-white text-sm">Yangi Post Yaratish</h3>
+            <button onclick="closeAddPostModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <form onsubmit="handleCreatePost(event)" class="space-y-3">
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">Turi</label>
+                <select id="post-type" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white">
+                    <option value="image">Rasm</option>
+                    <option value="video">Video</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">Fayl biriktirish</label>
+                <input type="file" id="post-file-input" required accept="image/*,video/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:bg-indigo-600 file:text-white hover:file:bg-indigo-500">
+            </div>
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">Izoh</label>
+                <textarea id="post-caption" rows="3" placeholder="Post haqida yozing..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500"></textarea>
+            </div>
+            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 rounded-xl text-sm transition">Chop etish</button>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div id="edit-profile-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-slate-900 rounded-2xl p-5 border border-slate-800 space-y-4">
+        <div class="flex justify-between items-center">
+            <h3 class="font-bold text-white text-sm">Profilni Tahrirlash</h3>
+            <button onclick="closeEditProfileModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <form onsubmit="handleSaveProfile(event)" class="space-y-3">
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">Ism</label>
+                <input type="text" id="edit-firstname" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white">
+            </div>
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">Motto / Bio</label>
+                <input type="text" id="edit-motto" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white">
+            </div>
+            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 rounded-xl text-sm transition">Saqlash</button>
+        </form>
+    </div>
+</div>
+
+<!-- Notification Toast -->
+<div id="toast-message" class="fixed top-4 left-1/2 -translate-x-1/2 bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs shadow-xl hidden z-50"></div>
+
+<script>
+    let currentActiveTab = 'home';
+    
+    // Persistent Stores
+    let usersDB = JSON.parse(localStorage.getItem('F_APP_USERS_CACHE') || '{}');
+    let postsDB = JSON.parse(localStorage.getItem('F_APP_POSTS_CACHE') || '[]');
+    let friendsDB = JSON.parse(localStorage.getItem('F_APP_FRIENDS_CACHE') || '{}');
+    let commentsDB = JSON.parse(localStorage.getItem('F_APP_COMMENTS_CACHE') || '{}');
+
+    // Default Playlist tracks
+    let defaultTracks = [
+        { title: "Lofi Beats Chill", artist: "F Music", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+        { title: "Acoustic Sunset", artist: "F Music", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" }
+    ];
+    let musicPlaylist = JSON.parse(localStorage.getItem('F_APP_PLAYLIST') || JSON.stringify(defaultTracks));
+    let currentTrackIndex = 0;
+    let isPlaying = false;
+
+    lucide.createIcons();
+
+    function showToast(msg) {
+        const toast = document.getElementById('toast-message');
+        toast.innerText = msg;
+        toast.classList.remove('hidden');
+        setTimeout(() => toast.classList.add('hidden'), 3000);
+    }
+
+    function saveLocalCaches() {
+        localStorage.setItem('F_APP_USERS_CACHE', JSON.stringify(usersDB));
+        localStorage.setItem('F_APP_POSTS_CACHE', JSON.stringify(postsDB));
+        localStorage.setItem('F_APP_FRIENDS_CACHE', JSON.stringify(friendsDB));
+        localStorage.setItem('F_APP_COMMENTS_CACHE', JSON.stringify(commentsDB));
+        localStorage.setItem('F_APP_PLAYLIST', JSON.stringify(musicPlaylist));
+    }
+
+    function readFileAsBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+            reader.readAsDataURL(file);
+        });
+    }
+
+    window.initGlobalCloudListeners = function() {
+        if (!window.db) {
+            renderFeedPosts();
+            return;
+        }
+        const { collection, onSnapshot } = window.firestoreUtils;
+
+        try {
+            const usersColRef = collection(window.db, 'artifacts', window.appId, 'public', 'data', 'users');
+            onSnapshot(usersColRef, (snapshot) => {
+                snapshot.docChanges().forEach((change) => {
+                    const data = change.doc.data();
+                    if (data && data.nickname) usersDB[data.nickname] = data;
+                });
+                saveLocalCaches();
+                if (currentActiveTab === 'search-users') renderAccountSearchResults();
+                if (currentActiveTab === 'profile') loadProfileData();
+            }, err => console.log("Using Local Users Cache"));
+
+            const postsColRef = collection(window.db, 'artifacts', window.appId, 'public', 'data', 'posts');
+            onSnapshot(postsColRef, (snapshot) => {
+                let tempPosts = [];
+                snapshot.forEach((docSnap) => tempPosts.push(docSnap.data()));
+                if (tempPosts.length > 0) {
+                    postsDB = tempPosts.sort((a,b) => b.id - a.id);
+                    saveLocalCaches();
+                }
+                renderFeedPosts();
+                if (currentActiveTab === 'profile') loadProfileData();
+            }, err => { renderFeedPosts(); });
+
+            const commentsColRef = collection(window.db, 'artifacts', window.appId, 'public', 'data', 'comments');
+            onSnapshot(commentsColRef, (snapshot) => {
+                snapshot.forEach((docSnap) => commentsDB[docSnap.id] = docSnap.data().list || []);
+                saveLocalCaches();
+                renderFeedPosts();
+            }, err => {});
+        } catch(e) {
+            renderFeedPosts();
+        }
+    };
+
+    function switchTab(tab) {
+        currentActiveTab = tab;
+        ['home', 'search-users', 'music', 'widgets', 'profile'].forEach(t => {
+            const el = document.getElementById(`view-${t}`);
+            if (el) el.classList.add('hidden');
+            const navBtn = document.getElementById(`nav-btn-${t}`);
+            if (navBtn) navBtn.className = 'flex flex-col items-center gap-1 text-slate-400 font-medium text-xs';
         });
 
-        function startSplashTimer() {
-            const progressBar = document.getElementById('splash-progress');
-            if (progressBar) progressBar.style.width = '100%';
+        document.getElementById(`view-${tab}`).classList.remove('hidden');
+        const activeNav = document.getElementById(`nav-btn-${tab}`);
+        if (activeNav) activeNav.className = 'flex flex-col items-center gap-1 text-indigo-400 font-medium text-xs';
 
-            setTimeout(() => {
-                document.getElementById('splash-screen').classList.add('hidden');
-                
-                const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER');
-                if (activeUserKey && usersDB[activeUserKey]) {
-                    launchHomeScreen();
-                } else {
-                    document.getElementById('auth-screen').classList.remove('hidden');
-                }
-            }, 3000);
-        }
+        if (tab === 'home') renderFeedPosts();
+        if (tab === 'search-users') renderAccountSearchResults();
+        if (tab === 'music') renderPlaylist();
+        if (tab === 'widgets') fetchCurrencyRates();
+        if (tab === 'profile') loadProfileData();
+    }
 
-        function switchTab(tabName) {
-            currentActiveTab = tabName;
-            
-            document.getElementById('home-screen').classList.add('hidden');
-            document.getElementById('profile-screen').classList.add('hidden');
-            document.getElementById('settings-screen').classList.add('hidden');
-            document.getElementById('search-users-screen').classList.add('hidden');
+    async function handleAuthSubmit(e) {
+        e.preventDefault();
+        const nickname = document.getElementById('auth-nickname').value.trim().toLowerCase();
+        const firstname = document.getElementById('auth-firstname').value.trim() || nickname;
+        const password = document.getElementById('auth-password').value;
 
-            const navButtons = ['home', 'profile', 'chats', 'search-users', 'settings'];
-            navButtons.forEach(btn => {
-                const navBtn = document.getElementById(`nav-btn-${btn}`);
-                if (navBtn) navBtn.className = "flex flex-col items-center text-gray-400 hover:text-white transition-all";
-            });
+        if (!nickname || !password) return;
 
-            if (tabName === 'profile') {
-                document.getElementById('profile-screen').classList.remove('hidden');
-                document.getElementById('nav-btn-profile').className = "flex flex-col items-center text-cyan-400 transition-all font-bold";
-                loadProfileData();
-            } else if (tabName === 'settings') {
-                document.getElementById('settings-screen').classList.remove('hidden');
-                document.getElementById('nav-btn-settings').className = "flex flex-col items-center text-cyan-400 transition-all font-bold";
-                populateSettingsForm();
-            } else if (tabName === 'search-users') {
-                document.getElementById('search-users-screen').classList.remove('hidden');
-                document.getElementById('nav-btn-search-users').className = "flex flex-col items-center text-cyan-400 transition-all font-bold";
-                renderAccountSearchResults();
-            } else {
-                document.getElementById('home-screen').classList.remove('hidden');
-                document.getElementById('nav-btn-home').className = "flex flex-col items-center text-cyan-400 transition-all font-bold";
+        let userObj = usersDB[nickname];
+        if (!userObj) {
+            userObj = { nickname, password, firstname, motto: 'Hello F App!' };
+            usersDB[nickname] = userObj;
+            saveLocalCaches();
+
+            if (window.db) {
+                try {
+                    const { doc, setDoc } = window.firestoreUtils;
+                    await setDoc(doc(window.db, 'artifacts', window.appId, 'public', 'data', 'users', nickname), userObj);
+                } catch(err){}
             }
-            lucide.createIcons();
         }
 
-        function toggleTheme() {
-            const body = document.getElementById('app-body');
-            const themeBtn = document.getElementById('theme-toggle-btn');
-            if (body.classList.contains('dark')) {
-                body.classList.remove('dark');
-                body.classList.add('light');
-                themeBtn.innerHTML = `<i data-lucide="sun" class="w-3.5 h-3.5 text-amber-500"></i> Light Mode`;
-            } else {
-                body.classList.remove('light');
-                body.classList.add('dark');
-                themeBtn.innerHTML = `<i data-lucide="moon" class="w-3.5 h-3.5"></i> Dark Mode`;
-            }
-            lucide.createIcons();
+        localStorage.setItem('F_APP_LOGGED_USER', nickname);
+        document.getElementById('auth-screen').classList.add('hidden');
+        document.getElementById('home-user-avatar').innerText = nickname.substring(0,2).toUpperCase();
+        loadProfileData();
+        showToast("Xush kelibsiz, @" + nickname);
+    }
+
+    function logoutUser() {
+        localStorage.removeItem('F_APP_LOGGED_USER');
+        document.getElementById('auth-screen').classList.remove('hidden');
+    }
+
+    function loadProfileData() {
+        const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER');
+        if (!activeUserKey) return;
+
+        const user = usersDB[activeUserKey] || { nickname: activeUserKey, firstname: activeUserKey, motto: '' };
+        document.getElementById('profile-fullname').innerText = user.firstname || activeUserKey;
+        document.getElementById('profile-nickname').innerText = '@' + user.nickname;
+        document.getElementById('profile-motto').innerText = user.motto ? `"${user.motto}"` : '"Motto berilmagan"';
+        document.getElementById('profile-avatar-initials').innerText = user.nickname.substring(0, 2).toUpperCase();
+
+        const userPosts = postsDB.filter(p => p.author === activeUserKey);
+        document.getElementById('profile-posts-count').innerText = userPosts.length;
+
+        const profileFeed = document.getElementById('profile-posts-feed');
+        if (userPosts.length === 0) {
+            profileFeed.innerHTML = '<div class="text-center py-6 text-slate-500 text-xs">Sizda hali postlar yo\'q.</div>';
+        } else {
+            profileFeed.innerHTML = userPosts.map(post => `
+                <div class="bg-slate-800/80 rounded-xl p-3 border border-slate-700/60 space-y-2">
+                    ${post.type === 'image' 
+                        ? `<img src="${post.url}" class="w-full h-auto rounded-lg max-h-60 object-cover">` 
+                        : `<video src="${post.url}" controls class="w-full rounded-lg max-h-60 bg-black"></video>`}
+                    ${post.caption ? `<p class="text-xs text-slate-200">${post.caption}</p>` : ''}
+                </div>
+            `).join('');
+        }
+    }
+
+    function openEditProfileModal() {
+        const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER');
+        const user = usersDB[activeUserKey] || {};
+        document.getElementById('edit-firstname').value = user.firstname || '';
+        document.getElementById('edit-motto').value = user.motto || '';
+        document.getElementById('edit-profile-modal').classList.remove('hidden');
+    }
+
+    function closeEditProfileModal() { document.getElementById('edit-profile-modal').classList.add('hidden'); }
+
+    async function handleSaveProfile(e) {
+        e.preventDefault();
+        const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER');
+        if (!usersDB[activeUserKey]) usersDB[activeUserKey] = { nickname: activeUserKey };
+
+        usersDB[activeUserKey].firstname = document.getElementById('edit-firstname').value;
+        usersDB[activeUserKey].motto = document.getElementById('edit-motto').value;
+
+        saveLocalCaches();
+        if (window.db) {
+            try {
+                const { doc, setDoc } = window.firestoreUtils;
+                await setDoc(doc(window.db, 'artifacts', window.appId, 'public', 'data', 'users', activeUserKey), usersDB[activeUserKey]);
+            } catch(e){}
         }
 
-        function changeLanguage(lang) {
-            alert(`Ilova tili o'zgartirildi: ${lang.toUpperCase()}`);
+        closeEditProfileModal();
+        loadProfileData();
+        showToast("Profil ma'lumotlari yangilandi");
+    }
+
+    function renderFeedPosts() {
+        const feed = document.getElementById('posts-feed');
+        if (!postsDB || postsDB.length === 0) {
+            feed.innerHTML = '<div class="text-center py-10 text-slate-500 text-sm">Hozircha hech qanday post yo\'q. Birinchi bo\'lib post joylang!</div>';
+            return;
         }
 
-        function loadProfileData() {
-            const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER');
-            if (!activeUserKey || !usersDB[activeUserKey]) return;
-
-            const user = usersDB[activeUserKey];
-
-            document.getElementById('profile-username').innerText = `@${activeUserKey}`;
-            document.getElementById('profile-fullname').innerText = `${user.firstname} ${user.lastname}`;
-
-            document.getElementById('profile-occupation').innerText = user.occupation || "Kasbi ko'rsatilmagan";
-            document.getElementById('profile-motto').innerText = user.motto || "Shior kiritilmagan";
-            document.getElementById('profile-bio').innerText = user.bio || "O'zi haqida ma'lumot yo'q";
-
-            // Audio Player handling
-            const audioPlayer = document.getElementById('profile-audio-player');
-            const musicTitle = document.getElementById('profile-music-title');
-            if (user.musicData) {
-                musicTitle.innerText = user.musicName || "Yuklangan Musiqa";
-                audioPlayer.src = user.musicData;
-                audioPlayer.classList.remove('hidden');
-            } else {
-                musicTitle.innerText = "Musiqa yuklanmagan";
-                audioPlayer.classList.add('hidden');
-            }
-
-            if (user.avatarUrl) {
-                document.getElementById('profile-avatar').innerHTML = `<img src="${user.avatarUrl}" class="w-full h-full object-cover rounded-full">`;
-            } else {
-                document.getElementById('profile-avatar').innerHTML = `<i data-lucide="user" class="w-10 h-10 text-white/80"></i>`;
-            }
-
-            if (!friendsDB[activeUserKey]) {
-                friendsDB[activeUserKey] = { friends: [], requests: [] };
-                localStorage.setItem('fapp_friends_db', JSON.stringify(friendsDB));
-            }
-
-            const userFriends = friendsDB[activeUserKey].friends || [];
-            const userRequests = friendsDB[activeUserKey].requests || [];
-            const userPosts = postsDB.filter(p => p.author === activeUserKey);
-
-            document.getElementById('stat-friends').innerText = userFriends.length;
-            document.getElementById('stat-requests').innerText = userRequests.length;
-            document.getElementById('stat-posts').innerText = userPosts.length;
-
-            renderProfilePosts(userPosts);
-        }
-
-        function populateSettingsForm() {
-            const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER');
-            if (!activeUserKey || !usersDB[activeUserKey]) return;
-
-            const user = usersDB[activeUserKey];
-            document.getElementById('setting-occupation').value = user.occupation || '';
-            document.getElementById('setting-motto').value = user.motto || '';
-            document.getElementById('setting-bio').value = user.bio || '';
-        }
-
-        async function handleSaveSettings(e) {
-            e.preventDefault();
-            const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER');
-            if (!activeUserKey || !usersDB[activeUserKey]) return;
-
-            const occupation = document.getElementById('setting-occupation').value.trim();
-            const motto = document.getElementById('setting-motto').value.trim();
-            const bio = document.getElementById('setting-bio').value.trim();
-
-            usersDB[activeUserKey].occupation = occupation;
-            usersDB[activeUserKey].motto = motto;
-            usersDB[activeUserKey].bio = bio;
-
-            // Handle Avatar
-            const avatarFileInput = document.getElementById('setting-avatar-file');
-            if (avatarFileInput.files && avatarFileInput.files[0]) {
-                const avatarData = await readFileAsBase64(avatarFileInput.files[0]);
-                usersDB[activeUserKey].avatarUrl = avatarData;
-            }
-
-            // Handle Audio Music File
-            const musicFileInput = document.getElementById('setting-music-file');
-            if (musicFileInput.files && musicFileInput.files[0]) {
-                const musicFile = musicFileInput.files[0];
-                const musicData = await readFileAsBase64(musicFile);
-                usersDB[activeUserKey].musicData = musicData;
-                usersDB[activeUserKey].musicName = musicFile.name;
-            }
-
-            localStorage.setItem('fapp_users', JSON.stringify(usersDB));
-            alert("Profil va sozlamalar muvaffaqiyatli saqlandi!");
-            switchTab('profile');
-        }
-
-        function readFileAsBase64(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = error => reject(error);
-                reader.readAsDataURL(file);
-            });
-        }
-
-        function renderAccountSearchResults() {
-            const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER');
-            const query = (document.getElementById('main-account-search')?.value || '').toLowerCase().trim();
-            const resultsContainer = document.getElementById('account-search-results');
-            resultsContainer.innerHTML = '';
-
-            const userKeys = Object.keys(usersDB).filter(k => k !== activeUserKey);
-
-            const filteredKeys = userKeys.filter(k => {
-                const u = usersDB[k];
-                const fullName = `${u.firstname} ${u.lastname}`.toLowerCase();
-                return k.toLowerCase().includes(query) || fullName.includes(query);
-            });
-
-            if (filteredKeys.length === 0) {
-                resultsContainer.innerHTML = `<p class="text-xs text-gray-400 text-center py-8">Hech qanday real profil topilmadi</p>`;
-                return;
-            }
-
-            filteredKeys.forEach(k => {
-                const u = usersDB[k];
-                const targetFriends = (friendsDB[k] && friendsDB[k].friends) ? friendsDB[k].friends : [];
-                const isFriend = targetFriends.includes(activeUserKey);
-                const hasPendingReq = friendsDB[k] && friendsDB[k].requests && friendsDB[k].requests.includes(activeUserKey);
-
-                const card = document.createElement('div');
-                card.className = 'glass-card rounded-2xl p-3 border border-white/10 flex items-center justify-between';
-                
-                card.innerHTML = `
-                    <div class="flex items-center space-x-3 cursor-pointer" onclick="openPublicProfileModal('${k}')">
-                        <div class="w-11 h-11 rounded-full bg-indigo-500/20 border border-indigo-500/30 overflow-hidden flex items-center justify-center font-bold text-white text-sm">
-                            ${u.avatarUrl ? `<img src="${u.avatarUrl}" class="w-full h-full object-cover">` : u.firstname[0]}
-                        </div>
-                        <div>
-                            <h4 class="text-xs font-bold text-white">${u.firstname} ${u.lastname}</h4>
-                            <span class="text-[10px] text-cyan-300">@${k}</span>
-                            <span class="block text-[9px] text-gray-400 mt-0.5">${targetFriends.length} ta do'sti bor</span>
-                        </div>
-                    </div>
-
-                    <div>
-                        ${isFriend ? 
-                            `<span class="text-[10px] px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Do'stsiz</span>` :
-                          hasPendingReq ?
-                            `<span class="text-[10px] px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30">Yuborilgan</span>` :
-                            `<button onclick="sendFriendRequest('${k}')" class="px-3 py-1.5 bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-semibold rounded-xl text-[10px] shadow-md">Do'stlik taklifi</button>`
-                        }
-                    </div>
-                `;
-                resultsContainer.appendChild(card);
-            });
-        }
-
-        function openPublicProfileModal(targetNick) {
-            const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER');
-            const targetUser = usersDB[targetNick];
-            if (!targetUser) return;
-
-            const targetFriends = (friendsDB[targetNick] && friendsDB[targetNick].friends) ? friendsDB[targetNick].friends : [];
-            const isFriend = targetFriends.includes(activeUserKey);
-            const hasPendingReq = friendsDB[targetNick] && friendsDB[targetNick].requests && friendsDB[targetNick].requests.includes(activeUserKey);
-
-            const container = document.getElementById('public-profile-content');
-            
-            container.innerHTML = `
-                <div class="flex flex-col items-center text-center">
-                    <div class="w-20 h-20 rounded-full p-[2px] bg-gradient-to-tr from-cyan-400 to-purple-500 mb-2">
-                        <div class="w-full h-full rounded-full bg-navy-base flex items-center justify-center overflow-hidden text-white font-bold text-xl">
-                            ${targetUser.avatarUrl ? `<img src="${targetUser.avatarUrl}" class="w-full h-full object-cover">` : targetUser.firstname[0]}
-                        </div>
-                    </div>
-
-                    <h3 class="text-sm font-bold text-white">${targetUser.firstname} ${targetUser.lastname}</h3>
-                    <span class="text-xs text-cyan-300">@${targetNick}</span>
-                    <span class="text-[10px] text-gray-400 mt-1">${targetFriends.length} ta do'sti bor</span>
-
-                    <div class="w-full space-y-2 mt-4 text-left glass-card p-3 rounded-xl border border-white/10">
-                        <p class="text-[11px] text-cyan-300 flex items-center gap-1.5"><i data-lucide="briefcase" class="w-3.5 h-3.5"></i> Kasbi: ${targetUser.occupation || "Kiritilmagan"}</p>
-                        <p class="text-[11px] text-amber-300 flex items-center gap-1.5"><i data-lucide="quote" class="w-3.5 h-3.5"></i> Shiori: "${targetUser.motto || "Kiritilmagan"}"</p>
-                        <p class="text-[11px] text-gray-300 flex items-start gap-1.5"><i data-lucide="info" class="w-3.5 h-3.5 mt-0.5"></i> Haqida: ${targetUser.bio || "Ma'lumot yo'q"}</p>
-                    </div>
-
-                    <div class="w-full mt-4">
-                        ${isFriend ? `
-                            <div class="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-center">
-                                <p class="text-xs text-emerald-300 font-semibold">Siz bu foydalanuvchi bilan do'stsiz!</p>
+        feed.innerHTML = postsDB.map(post => {
+            const commentsList = commentsDB[post.id] || [];
+            return `
+                <div class="bg-slate-800/80 rounded-2xl p-4 border border-slate-700/60 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-white uppercase text-xs">
+                                ${post.author.substring(0, 2)}
                             </div>
-                        ` : `
-                            <div class="p-4 bg-white/5 border border-white/10 rounded-xl text-center">
-                                <i data-lucide="lock" class="w-6 h-6 text-cyan-400 mx-auto mb-1"></i>
-                                <p class="text-xs font-semibold text-white">Profil yopiq</p>
-                                <p class="text-[10px] text-gray-400 mt-0.5">Rasmlar va do'stlar ro'yxati faqat do'stlik taklifi qabul qilingandan so'ng ko'rinadi.</p>
-                                ${hasPendingReq ? 
-                                    `<span class="inline-block mt-3 px-3 py-1 bg-amber-500/20 text-amber-300 rounded-lg text-xs">Taklif yuborilgan</span>` :
-                                    `<button onclick="sendFriendRequest('${targetNick}')" class="mt-3 px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-bold rounded-xl text-xs shadow-md">Do'stlik taklifi jo'natish</button>`
-                                }
+                            <div>
+                                <div class="font-bold text-sm text-white">@${post.author}</div>
+                                <div class="text-[10px] text-slate-400">${post.date || 'Hozirgina'}</div>
                             </div>
-                        `}
+                        </div>
+                    </div>
+                    ${post.type === 'image' 
+                        ? `<img src="${post.url}" class="w-full h-auto rounded-xl max-h-80 object-cover">` 
+                        : `<video src="${post.url}" controls class="w-full rounded-xl max-h-80 bg-black"></video>`}
+                    ${post.caption ? `<p class="text-xs text-slate-200">${post.caption}</p>` : ''}
+
+                    <!-- Comments Section -->
+                    <div class="pt-2 border-t border-slate-700/40 space-y-2">
+                        <div class="text-[11px] font-semibold text-slate-400">Izohlar (${commentsList.length})</div>
+                        <div class="space-y-1.5 max-h-28 overflow-y-auto custom-scrollbar">
+                            ${commentsList.map(c => `
+                                <div class="text-xs bg-slate-900/60 p-2 rounded-lg">
+                                    <span class="font-bold text-indigo-400">@${c.author}:</span>
+                                    <span class="text-slate-200">${c.text}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="flex gap-2">
+                            <input type="text" id="comment-input-${post.id}" placeholder="Izoh yozing..." class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+                            <button onclick="addComment(${post.id})" class="px-3 py-1.5 bg-indigo-600 text-white text-xs rounded-lg font-medium">Yuborish</button>
+                        </div>
                     </div>
                 </div>
             `;
+        }).join('');
+    }
 
-            document.getElementById('public-profile-modal').classList.remove('hidden');
-            lucide.createIcons();
+    async function addComment(postId) {
+        const inp = document.getElementById(`comment-input-${postId}`);
+        const text = inp.value.trim();
+        const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER');
+        if (!text || !activeUserKey) return;
+
+        if (!commentsDB[postId]) commentsDB[postId] = [];
+        commentsDB[postId].push({ author: activeUserKey, text });
+        inp.value = '';
+
+        saveLocalCaches();
+        renderFeedPosts();
+
+        if (window.db) {
+            try {
+                const { doc, setDoc } = window.firestoreUtils;
+                await setDoc(doc(window.db, 'artifacts', window.appId, 'public', 'data', 'comments', `${postId}`), { list: commentsDB[postId] });
+            } catch(e){}
+        }
+    }
+
+    function openAddPostModal() { document.getElementById('add-post-modal').classList.remove('hidden'); }
+    function closeAddPostModal() { document.getElementById('add-post-modal').classList.add('hidden'); }
+
+    async function handleCreatePost(e) {
+        e.preventDefault();
+        const type = document.getElementById('post-type').value;
+        const fileInput = document.getElementById('post-file-input');
+        const caption = document.getElementById('post-caption').value;
+        const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER');
+
+        if (!fileInput.files || !fileInput.files[0]) return;
+
+        const fileUrl = await readFileAsBase64(fileInput.files[0]);
+        const newPost = {
+            id: Date.now(),
+            author: activeUserKey,
+            type,
+            url: fileUrl,
+            caption,
+            date: new Date().toLocaleTimeString()
+        };
+
+        postsDB.unshift(newPost);
+        saveLocalCaches();
+        renderFeedPosts();
+
+        if (window.db) {
+            try {
+                const { doc, setDoc } = window.firestoreUtils;
+                await setDoc(doc(window.db, 'artifacts', window.appId, 'public', 'data', 'posts', `post_${newPost.id}`), newPost);
+            } catch(e){}
         }
 
-        function closePublicProfileModal() {
-            document.getElementById('public-profile-modal').classList.add('hidden');
+        closeAddPostModal();
+        showToast("Post chop etildi!");
+    }
+
+    function renderAccountSearchResults() {
+        const query = document.getElementById('user-search-input').value.toLowerCase();
+        const listContainer = document.getElementById('users-search-list');
+        const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER');
+
+        const keys = Object.keys(usersDB).filter(k => k.includes(query));
+        if (keys.length === 0) {
+            listContainer.innerHTML = '<div class="text-center py-8 text-slate-500 text-xs">Foydalanuvchilar topilmadi</div>';
+            return;
         }
 
-        function renderProfilePosts(posts) {
-            const grid = document.getElementById('posts-grid');
-            const emptyMsg = document.getElementById('empty-posts-msg');
-            grid.innerHTML = '';
-
-            let filtered = posts;
-            if (currentFeedFilter === 'photo') filtered = posts.filter(p => p.type === 'photo');
-            if (currentFeedFilter === 'video') filtered = posts.filter(p => p.type === 'video');
-
-            if (filtered.length === 0) {
-                emptyMsg.classList.remove('hidden');
-                return;
-            } else {
-                emptyMsg.classList.add('hidden');
-            }
-
-            filtered.forEach(post => {
-                const card = document.createElement('div');
-                card.className = 'relative aspect-square glass-card rounded-xl overflow-hidden group cursor-pointer border border-white/10';
-                
-                if (post.type === 'video') {
-                    card.innerHTML = `
-                        <video src="${post.url}" class="w-full h-full object-cover" controls></video>
-                    `;
-                } else {
-                    card.innerHTML = `
-                        <img src="${post.url}" alt="Post" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-2 flex items-end">
-                            <span class="text-[9px] text-white line-clamp-1">${post.caption || ''}</span>
+        listContainer.innerHTML = keys.map(key => {
+            const u = usersDB[key];
+            const isMe = key === activeUserKey;
+            return `
+                <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700/60 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center font-bold text-white text-xs uppercase">
+                            ${u.nickname.substring(0,2)}
                         </div>
-                    `;
-                }
-                grid.appendChild(card);
-            });
-            lucide.createIcons();
-        }
-
-        function setFeedFilter(type) {
-            currentFeedFilter = type;
-            ['all', 'photos', 'videos'].forEach(t => {
-                const btn = document.getElementById(`feed-tab-${t}`);
-                if (btn) btn.className = "flex-1 py-2 text-center text-xs font-medium text-gray-400 hover:text-white border-b-2 border-transparent flex items-center justify-center gap-1.5";
-            });
-
-            const activeBtn = document.getElementById(`feed-tab-${type === 'photo' ? 'photos' : type === 'video' ? 'videos' : 'all'}`);
-            if (activeBtn) activeBtn.className = "flex-1 py-2 text-center text-xs font-semibold border-b-2 border-cyan-400 text-cyan-300 flex items-center justify-center gap-1.5";
-
-            const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER');
-            const userPosts = postsDB.filter(p => p.author === activeUserKey);
-            renderProfilePosts(userPosts);
-        }
-
-        function openFriendsModal(tab = 'friends') {
-            document.getElementById('friends-modal').classList.remove('hidden');
-            switchFriendsTab(tab);
-        }
-
-        function closeFriendsModal() {
-            document.getElementById('friends-modal').classList.add('hidden');
-        }
-
-        function switchFriendsTab(tab) {
-            const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER');
-            const userData = friendsDB[activeUserKey] || { friends: [], requests: [] };
-
-            document.getElementById('modal-friends-count').innerText = userData.friends.length;
-            document.getElementById('modal-requests-count').innerText = userData.requests.length;
-
-            const list = document.getElementById('modal-friends-list');
-            list.innerHTML = '';
-
-            if (tab === 'friends') {
-                if (userData.friends.length === 0) {
-                    list.innerHTML = `<p class="text-xs text-gray-400 text-center py-6">Sizda hali do'stlar yo'q</p>`;
-                    return;
-                }
-                userData.friends.forEach(friendNick => {
-                    const u = usersDB[friendNick] || { firstname: friendNick, lastname: '' };
-                    const div = document.createElement('div');
-                    div.className = 'flex items-center justify-between p-2.5 rounded-2xl bg-white/5 border border-white/5';
-                    div.innerHTML = `
-                        <div class="flex items-center space-x-2.5 cursor-pointer" onclick="openPublicProfileModal('${friendNick}')">
-                            <div class="w-9 h-9 rounded-full bg-cyan-500/20 text-cyan-300 flex items-center justify-center font-bold text-xs border border-cyan-500/30">
-                                ${u.firstname[0]}
-                            </div>
-                            <div>
-                                <h4 class="text-xs font-semibold text-white">${u.firstname} ${u.lastname}</h4>
-                                <span class="text-[10px] text-gray-400">@${friendNick}</span>
-                            </div>
+                        <div>
+                            <div class="text-xs font-bold text-white">@${u.nickname} ${isMe ? '(Siz)' : ''}</div>
+                            <div class="text-[10px] text-slate-400">${u.firstname || ''}</div>
                         </div>
-                        <span class="text-[9px] px-2 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Do'stlar</span>
-                    `;
-                    list.appendChild(div);
-                });
-            } else if (tab === 'requests') {
-                if (userData.requests.length === 0) {
-                    list.innerHTML = `<p class="text-xs text-gray-400 text-center py-6">Yangi so'rovlar mavjud emas</p>`;
-                    return;
-                }
-                userData.requests.forEach(reqNick => {
-                    const u = usersDB[reqNick] || { firstname: reqNick, lastname: '' };
-                    const div = document.createElement('div');
-                    div.className = 'flex items-center justify-between p-2.5 rounded-2xl bg-white/5 border border-white/5';
-                    div.innerHTML = `
-                        <div class="flex items-center space-x-2.5 cursor-pointer" onclick="openPublicProfileModal('${reqNick}')">
-                            <div class="w-9 h-9 rounded-full bg-purple-500/20 text-purple-300 flex items-center justify-center font-bold text-xs border border-purple-500/30">
-                                ${u.firstname[0]}
-                            </div>
-                            <div>
-                                <h4 class="text-xs font-semibold text-white">${u.firstname} ${u.lastname}</h4>
-                                <span class="text-[10px] text-gray-400">@${reqNick}</span>
-                            </div>
-                        </div>
-                        <button onclick="acceptFriendRequest('${reqNick}')" class="px-2.5 py-1 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg text-[10px] font-semibold">Qabul qilish</button>
-                    `;
-                    list.appendChild(div);
-                });
-            }
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function renderPlaylist() {
+        const container = document.getElementById('playlist-container');
+        container.innerHTML = musicPlaylist.map((track, i) => `
+            <div onclick="selectTrack(${i})" class="p-3 bg-slate-800/80 hover:bg-slate-800 rounded-xl border ${i === currentTrackIndex ? 'border-indigo-500 bg-indigo-950/20' : 'border-slate-700/60'} flex items-center justify-between cursor-pointer transition">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="${i === currentTrackIndex && isPlaying ? 'volume-2' : 'music'}" class="w-4 h-4 ${i === currentTrackIndex ? 'text-indigo-400' : 'text-slate-400'}"></i>
+                    <div>
+                        <div class="text-xs font-bold text-white">${track.title}</div>
+                        <div class="text-[10px] text-slate-400">${track.artist}</div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        lucide.createIcons();
+    }
+
+    function selectTrack(index) {
+        currentTrackIndex = index;
+        const player = document.getElementById('audio-player');
+        const track = musicPlaylist[index];
+        player.src = track.url;
+        document.getElementById('current-track-title').innerText = track.title;
+        document.getElementById('current-track-artist').innerText = track.artist;
+        playMusic();
+        renderPlaylist();
+    }
+
+    function togglePlayMusic() {
+        if (!musicPlaylist.length) return;
+        if (isPlaying) pauseMusic(); else playMusic();
+    }
+
+    function playMusic() {
+        const player = document.getElementById('audio-player');
+        if (!player.src) selectTrack(currentTrackIndex);
+        else player.play();
+        isPlaying = true;
+        document.getElementById('play-pause-btn').innerHTML = '<i data-lucide="pause" class="w-6 h-6"></i>';
+        document.getElementById('music-indicator').classList.remove('hidden');
+        document.getElementById('music-disc-icon').classList.add('animate-spin');
+        lucide.createIcons();
+    }
+
+    function pauseMusic() {
+        const player = document.getElementById('audio-player');
+        player.pause();
+        isPlaying = false;
+        document.getElementById('play-pause-btn').innerHTML = '<i data-lucide="play" class="w-6 h-6"></i>';
+        document.getElementById('music-indicator').classList.add('hidden');
+        document.getElementById('music-disc-icon').classList.remove('animate-spin');
+        lucide.createIcons();
+    }
+
+    function nextTrack() {
+        currentTrackIndex = (currentTrackIndex + 1) % musicPlaylist.length;
+        selectTrack(currentTrackIndex);
+    }
+
+    function prevTrack() {
+        currentTrackIndex = (currentTrackIndex - 1 + musicPlaylist.length) % musicPlaylist.length;
+        selectTrack(currentTrackIndex);
+    }
+
+    async function handleMusicUpload(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const audioUrl = await readFileAsBase64(file);
+        musicPlaylist.unshift({
+            title: file.name.replace(/\.[^/.]+$/, ""),
+            artist: "Mening Musiqam",
+            url: audioUrl
+        });
+        saveLocalCaches();
+        renderPlaylist();
+        selectTrack(0);
+        showToast("Musiqa playlistga qo'shildi!");
+    }
+
+    async function fetchCurrencyRates() {
+        try {
+            const res = await fetch('https://cbu.uz/uz/arkhiv-kursov-valyut/json/');
+            const data = await res.json();
+            const usd = data.find(c => c.Ccy === 'USD');
+            const eur = data.find(c => c.Ccy === 'EUR');
+            const rub = data.find(c => c.Ccy === 'RUB');
+
+            if (usd) document.getElementById('rate-usd').innerText = `${usd.Rate} so'm`;
+            if (eur) document.getElementById('rate-eur').innerText = `${eur.Rate} so'm`;
+            if (rub) document.getElementById('rate-rub').innerText = `${rub.Rate} so'm`;
+            if (usd) document.getElementById('currency-date').innerText = usd.Date;
+        } catch(e) {
+            document.getElementById('rate-usd').innerText = "12 850 so'm";
+            document.getElementById('rate-eur').innerText = "13 900 so'm";
+            document.getElementById('rate-rub').innerText = "135 so'm";
         }
+    }
 
-        function acceptFriendRequest(senderNick) {
-            const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER');
-            
-            if (!friendsDB[activeUserKey]) friendsDB[activeUserKey] = { friends: [], requests: [] };
-            if (!friendsDB[senderNick]) friendsDB[senderNick] = { friends: [], requests: [] };
-
-            friendsDB[activeUserKey].friends.push(senderNick);
-            friendsDB[senderNick].friends.push(activeUserKey);
-
-            friendsDB[activeUserKey].requests = friendsDB[activeUserKey].requests.filter(r => r !== senderNick);
-
-            localStorage.setItem('fapp_friends_db', JSON.stringify(friendsDB));
-            loadProfileData();
-            switchFriendsTab('friends');
-            if (!document.getElementById('public-profile-modal').classList.contains('hidden')) {
-                openPublicProfileModal(senderNick);
-            }
-        }
-
-        function sendFriendRequest(targetNick) {
-            if (!friendsDB[targetNick]) friendsDB[targetNick] = { friends: [], requests: [] };
-            const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER');
-
-            if (!friendsDB[targetNick].requests.includes(activeUserKey)) {
-                friendsDB[targetNick].requests.push(activeUserKey);
-                localStorage.setItem('fapp_friends_db', JSON.stringify(friendsDB));
-            }
-            alert(`Do'stlik so'rovi @${targetNick} ga jo'natildi!`);
-            renderAccountSearchResults();
-            if (!document.getElementById('public-profile-modal').classList.contains('hidden')) {
-                openPublicProfileModal(targetNick);
-            }
-        }
-
-        function updateFileTypeAccept() {
-            const type = document.getElementById('post-type').value;
-            const input = document.getElementById('post-file-input');
-            input.accept = type === 'video' ? 'video/*' : 'image/*';
-        }
-
-        function openAddPostModal() {
-            document.getElementById('add-post-modal').classList.remove('hidden');
-        }
-
-        function closeAddPostModal() {
-            document.getElementById('add-post-modal').classList.add('hidden');
-        }
-
-        async function handleCreatePost(e) {
-            e.preventDefault();
-            const type = document.getElementById('post-type').value;
-            const fileInput = document.getElementById('post-file-input');
-            const caption = document.getElementById('post-caption').value;
-            const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER');
-
-            if (!fileInput.files || !fileInput.files[0]) {
-                alert("Iltimos, faylni tanlang!");
-                return;
-            }
-
-            const fileUrl = await readFileAsBase64(fileInput.files[0]);
-
-            postsDB.unshift({
-                id: Date.now(),
-                author: activeUserKey,
-                type,
-                url: fileUrl,
-                caption,
-                date: 'Hozirgina'
-            });
-
-            localStorage.setItem('fapp_posts_db', JSON.stringify(postsDB));
-            closeAddPostModal();
-            loadProfileData();
-        }
-
-        function handleLogout() {
-            localStorage.removeItem('F_APP_LOGGED_USER');
-            document.getElementById('settings-screen').classList.add('hidden');
-            document.getElementById('home-screen').classList.add('hidden');
-            document.getElementById('profile-screen').classList.add('hidden');
-            document.getElementById('search-users-screen').classList.add('hidden');
-            document.getElementById('bottom-nav').classList.add('hidden');
-            document.getElementById('auth-screen').classList.remove('hidden');
-        }
-
-        function switchAuthTab(tab) {
-            clearAlert();
-            if (tab === 'signup') {
-                document.getElementById('login-form-container').classList.add('hidden');
-                document.getElementById('signup-form-container').classList.remove('hidden');
-            } else {
-                document.getElementById('signup-form-container').classList.add('hidden');
-                document.getElementById('login-form-container').classList.remove('hidden');
-            }
-        }
-
-        function showAlert(msg, isError = true) {
-            const el = document.getElementById('auth-alert');
-            el.innerText = msg;
-            el.className = `mb-4 p-3 rounded-xl text-xs font-medium border text-center transition-all ${
-                isError ? 'bg-red-500/20 border-red-500/40 text-red-300' : 'bg-green-500/20 border-green-500/40 text-green-300'
-            }`;
-            el.classList.remove('hidden');
-        }
-
-        function clearAlert() {
-            document.getElementById('auth-alert').classList.add('hidden');
-        }
-
-        function togglePassword(id) {
-            const input = document.getElementById(id);
-            input.type = input.type === 'password' ? 'text' : 'password';
-        }
-
-        function checkNicknameRules(nick) {
-            const isOnlyLowercase = /^[a-z0-9._]+$/.test(nick);
-            const letterMatch = nick.match(/[a-z]/g);
-            const hasTwoLetters = letterMatch && letterMatch.length >= 2;
-            const hasSymbol = /[._]/.test(nick);
-            const digitMatch = nick.match(/[0-9]/g);
-            const hasTwoDigits = digitMatch && digitMatch.length >= 2;
-
-            return {
-                isOnlyLowercase,
-                hasTwoLetters,
-                hasSymbol,
-                hasTwoDigits,
-                isValid: isOnlyLowercase && hasTwoLetters && hasSymbol && hasTwoDigits
-            };
-        }
-
-        function validateNicknameLive() {
-            const nick = document.getElementById('signup-nickname').value;
-            const rules = checkNicknameRules(nick);
-
-            updateRuleUI('rule-lowercase', rules.isOnlyLowercase && nick.length > 0);
-            updateRuleUI('rule-letters', rules.hasTwoLetters);
-            updateRuleUI('rule-symbol', rules.hasSymbol);
-            updateRuleUI('rule-digits', rules.hasTwoDigits);
-        }
-
-        function validatePasswordLive() {
-            const pass = document.getElementById('signup-password').value;
-            updateRuleUI('rule-password-length', pass.length >= 8);
-        }
-
-        function updateRuleUI(elementId, isMet) {
-            const el = document.getElementById(elementId);
-            if (!el) return;
-            if (isMet) {
-                el.classList.remove('text-gray-400', 'text-red-400');
-                el.classList.add('text-green-400');
-            } else {
-                el.classList.remove('text-green-400');
-                el.classList.add('text-gray-400');
-            }
-        }
-
-        function handleSignUp(e) {
-            e.preventDefault();
-            clearAlert();
-
-            const firstname = document.getElementById('signup-firstname').value.trim();
-            const lastname = document.getElementById('signup-lastname').value.trim();
-            const age = document.getElementById('signup-age').value;
-            const gender = document.getElementById('signup-gender').value;
-            const nickname = document.getElementById('signup-nickname').value.trim();
-            const password = document.getElementById('signup-password').value;
-
-            const nickValidation = checkNicknameRules(nickname);
-            if (!nickValidation.isValid) {
-                showAlert('Nickname barcha talablarga javob berishi kerak!');
-                return;
-            }
-
-            if (usersDB[nickname]) {
-                showAlert('Ushbu nickname band. Iltimos, boshqasini tanlang.');
-                return;
-            }
-
-            if (password.length < 8) {
-                showAlert('Parol kamida 8 ta belgidan iborat bo\'lishi shart!');
-                return;
-            }
-
-            usersDB[nickname] = { firstname, lastname, age, gender, password };
-            localStorage.setItem('fapp_users', JSON.stringify(usersDB));
-
-            localStorage.setItem('F_APP_LOGGED_USER', nickname);
-
-            showAlert('Ro\'yxatdan muvaffaqiyatli o\'tdingiz! Kirilmoqda...', false);
-            setTimeout(() => {
-                document.getElementById('auth-screen').classList.add('hidden');
-                launchHomeScreen();
-            }, 1000);
-        }
-
-        function handleLogin(e) {
-            e.preventDefault();
-            clearAlert();
-
-            const nickname = document.getElementById('login-nickname').value.trim();
-            const password = document.getElementById('login-password').value;
-
-            const user = usersDB[nickname];
-            if (!user) {
-                showAlert('Bunday nickname mavjud emas!');
-                return;
-            }
-
-            if (user.password !== password) {
-                showAlert("Parol noto'g'ri kiritildi!");
-                return;
-            }
-
-            localStorage.setItem('F_APP_LOGGED_USER', nickname);
+    window.onload = function() {
+        const activeUser = localStorage.getItem('F_APP_LOGGED_USER');
+        if (activeUser) {
             document.getElementById('auth-screen').classList.add('hidden');
-            launchHomeScreen();
+            document.getElementById('home-user-avatar').innerText = activeUser.substring(0,2).toUpperCase();
+            loadProfileData();
         }
-
-        function launchHomeScreen() {
-            document.getElementById('home-screen').classList.remove('hidden');
-            document.getElementById('bottom-nav').classList.remove('hidden');
-
-            fetchWeatherForRegion();
-            fetchExchangeRates();
-        }
-
-        async function fetchExchangeRates() {
-            try {
-                const res = await fetch('https://open.er-api.com/v6/latest/USD');
-                const data = await res.json();
-                if (data && data.rates) {
-                    const uzsRate = data.rates.UZS || 12850;
-                    document.getElementById('rate-usd').innerText = Math.round(uzsRate).toLocaleString();
-                    
-                    const eurToUzs = (1 / data.rates.EUR) * uzsRate;
-                    document.getElementById('rate-eur').innerText = Math.round(eurToUzs).toLocaleString();
-
-                    window.currencyRates = data.rates;
-                    window.uzsBaseRate = uzsRate;
-                    updateSelectedCurrency();
-                }
-            } catch (err) {
-                console.log('Currency fallback active');
-            }
-        }
-
-        function updateSelectedCurrency() {
-            const select = document.getElementById('currency-select');
-            const code = select.value;
-            if (window.currencyRates && window.uzsBaseRate) {
-                const rateToUzs = (1 / window.currencyRates[code]) * window.uzsBaseRate;
-                document.getElementById('rate-custom').innerText = rateToUzs < 10 ? rateToUzs.toFixed(2) : Math.round(rateToUzs).toLocaleString();
-            }
-        }
-
-        async function fetchWeatherForRegion() {
-            const regionKey = document.getElementById('region-selector').value;
-            const regionData = uzbekistanRegions[regionKey] || uzbekistanRegions.shahrixon;
-
-            try {
-                const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${regionData.lat}&longitude=${regionData.lon}&current_weather=true&hourly=temperature_2m,weathercode`);
-                const data = await res.json();
-
-                if (data && data.current_weather) {
-                    const temp = Math.round(data.current_weather.temperature);
-                    document.getElementById('weather-temp').innerText = `${temp}°`;
-
-                    const code = data.current_weather.weathercode;
-                    document.getElementById('weather-condition').innerText = getWeatherText(code);
-
-                    if (data.hourly && data.hourly.temperature_2m) {
-                        const container = document.getElementById('hourly-forecast-container');
-                        container.innerHTML = '';
-
-                        const currentHour = new Date().getHours();
-                        for (let i = currentHour; i < currentHour + 12; i++) {
-                            const idx = i % 24;
-                            const hourTime = `${idx < 10 ? '0' : ''}${idx}:00`;
-                            const hourTemp = Math.round(data.hourly.temperature_2m[i] || temp);
-
-                            const hourCard = document.createElement('div');
-                            hourCard.className = 'flex flex-col items-center min-w-[42px] bg-white/5 p-1.5 rounded-xl border border-white/5 flex-shrink-0';
-                            hourCard.innerHTML = `
-                                <span class="text-[9px] text-gray-400">${hourTime}</span>
-                                <span class="text-xs font-bold text-white my-0.5">${hourTemp}°</span>
-                                <i data-lucide="${idx > 6 && idx < 20 ? 'sun' : 'moon'}" class="w-3 h-3 text-cyan-300"></i>
-                            `;
-                            container.appendChild(hourCard);
-                        }
-                        lucide.createIcons();
-                    }
-                }
-            } catch (err) {
-                console.log('Weather fetch failed');
-            }
-        }
-
-        function getWeatherText(code) {
-            if (code === 0) return 'Ochiq havo';
-            if (code <= 3) return 'Bulutli';
-            if (code <= 65) return 'Yomg\'ir';
-            if (code <= 80) return 'Qor';
-            return 'Ochiq';
-        }
-    </script>
+        renderFeedPosts();
+    };
+</script>
 </body>
 </html>
