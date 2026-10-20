@@ -390,7 +390,6 @@
 
             <!-- Search Results Container -->
             <div id="account-search-results" class="space-y-3">
-                <!-- Dynamically populated without any fake accounts -->
             </div>
         </div>
 
@@ -405,7 +404,6 @@
                 </div>
 
                 <div id="public-profile-content">
-                    <!-- Loaded dynamically -->
                 </div>
             </div>
         </div>
@@ -460,11 +458,11 @@
                     <h3 id="profile-fullname" class="text-xs font-bold text-white">Ism Familiya</h3>
                     
                     <p id="profile-occupation-badge" class="text-[11px] font-medium text-cyan-300 flex items-center gap-1.5">
-                        <i data-lucide="briefcase" class="w-3 h-3 text-cyan-400"></i> <span id="profile-occupation">Kasbi ko'rsatilmagan</span>
+                        <i data-lucide="briefcase" class="w-3.5 h-3.5 text-cyan-400"></i> <span id="profile-occupation">Kasbi ko'rsatilmagan</span>
                     </p>
 
                     <p id="profile-motto-box" class="text-[11px] text-amber-300/90 italic flex items-center gap-1.5">
-                        <i data-lucide="quote" class="w-3 h-3 text-amber-400"></i> "<span id="profile-motto">Shior kiritilmagan</span>"
+                        <i data-lucide="quote" class="w-3.5 h-3.5 text-amber-400"></i> "<span id="profile-motto">Shior kiritilmagan</span>"
                     </p>
 
                     <!-- Real Audio Player Section -->
@@ -477,7 +475,7 @@
                     </div>
 
                     <p id="profile-bio-box" class="text-[11px] text-gray-300 mt-1 flex items-start gap-1.5">
-                        <i data-lucide="info" class="w-3 h-3 text-gray-400 mt-0.5"></i> <span id="profile-bio">O'zi haqida ma'lumot yo'q</span>
+                        <i data-lucide="info" class="w-3.5 h-3.5 text-gray-400 mt-0.5"></i> <span id="profile-bio">O'zi haqida ma'lumot yo'q</span>
                     </p>
                 </div>
 
@@ -709,15 +707,12 @@
 
     </div>
 
-    <!-- JS Application Logic -->
     <script>
         let currentFeedFilter = 'all';
         let currentActiveTab = 'home';
         
         let friendsDB = JSON.parse(localStorage.getItem('fapp_friends_db')) || {};
         let postsDB = JSON.parse(localStorage.getItem('fapp_posts_db')) || [];
-
-        // STRICT REQUIREMENT: ZERO FAKE ACCOUNTS IN DATABASE
         let usersDB = JSON.parse(localStorage.getItem('fapp_users')) || {};
 
         lucide.createIcons();
@@ -821,7 +816,7 @@
             document.getElementById('profile-motto').innerText = user.motto || "Shior kiritilmagan";
             document.getElementById('profile-bio').innerText = user.bio || "O'zi haqida ma'lumot yo'q";
 
-            // Real Audio Player handling
+            // Audio Player handling
             const audioPlayer = document.getElementById('profile-audio-player');
             const musicTitle = document.getElementById('profile-music-title');
             if (user.musicData) {
@@ -878,14 +873,14 @@
             usersDB[activeUserKey].motto = motto;
             usersDB[activeUserKey].bio = bio;
 
-            // Handle Local File Avatar
+            // Handle Avatar
             const avatarFileInput = document.getElementById('setting-avatar-file');
             if (avatarFileInput.files && avatarFileInput.files[0]) {
                 const avatarData = await readFileAsBase64(avatarFileInput.files[0]);
                 usersDB[activeUserKey].avatarUrl = avatarData;
             }
 
-            // Handle Local Audio Music File
+            // Handle Audio Music File
             const musicFileInput = document.getElementById('setting-music-file');
             if (musicFileInput.files && musicFileInput.files[0]) {
                 const musicFile = musicFileInput.files[0];
