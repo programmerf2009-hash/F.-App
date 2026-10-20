@@ -101,7 +101,7 @@
     <!-- MAIN WRAPPER CONTAINER -->
     <div id="app-root" class="relative z-10 w-full max-w-md sm:max-w-xl mx-auto min-h-screen flex flex-col pb-24">
 
-        <!-- ==================== SPLASH SCREEN (3 SECOND AUTO TIMER) ==================== -->
+        <!-- ==================== SPLASH SCREEN ==================== -->
         <div id="splash-screen" class="flex flex-col items-center justify-center min-h-screen w-full transition-all duration-700">
             <div class="relative w-44 h-44 sm:w-56 sm:h-56 flex items-center justify-center">
                 <img src="fapplogo2.png" 
@@ -113,7 +113,6 @@
                 </div>
             </div>
             
-            <!-- Progress indicator bar -->
             <div class="w-48 h-1.5 bg-white/10 rounded-full mt-8 overflow-hidden relative">
                 <div id="splash-progress" class="h-full bg-gradient-to-r from-cyan-400 to-purple-500 w-0 transition-all duration-[3000ms] ease-linear"></div>
             </div>
@@ -176,11 +175,11 @@
                         <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-xs text-gray-300 mb-1 ml-1">Ism</label>
-                                <input type="text" id="signup-firstname" required placeholder="Fayzullo" class="w-full glass-input rounded-xl py-2.5 px-3 text-xs">
+                                <input type="text" id="signup-firstname" required placeholder="Ismingiz" class="w-full glass-input rounded-xl py-2.5 px-3 text-xs">
                             </div>
                             <div>
                                 <label class="block text-xs text-gray-300 mb-1 ml-1">Familiya</label>
-                                <input type="text" id="signup-lastname" required placeholder="Anvarov" class="w-full glass-input rounded-xl py-2.5 px-3 text-xs">
+                                <input type="text" id="signup-lastname" required placeholder="Familiyangiz" class="w-full glass-input rounded-xl py-2.5 px-3 text-xs">
                             </div>
                         </div>
 
@@ -236,27 +235,24 @@
         <!-- ==================== MAIN HOME SCREEN ==================== -->
         <div id="home-screen" class="hidden w-full flex flex-col pt-3 px-3 sm:px-0">
             
-            <!-- HEADER (With Anonymous White Profile Avatar) -->
+            <!-- HEADER -->
             <header class="flex items-center justify-between py-2 px-1 mb-4">
-                <!-- Left: Logo & F App Title -->
                 <div class="flex items-center space-x-2.5">
                     <img src="fapplogo2.png" alt="F App Logo" class="w-9 h-9 object-contain drop-shadow-[0_0_12px_rgba(56,189,248,0.6)]" onerror="this.src='https://placehold.co/40x40/1677FF/ffffff?text=F'">
                     <span class="text-xl font-extrabold tracking-tight text-white">F App</span>
                 </div>
 
-                <!-- Right: Profile Avatar (Anonymous default) + Search Icon -->
                 <div class="flex items-center space-x-2">
-                    <button class="p-2 text-gray-300 hover:text-white transition-colors rounded-full hover:bg-white/10">
+                    <button onclick="switchTab('search-users')" class="p-2 text-gray-300 hover:text-white transition-colors rounded-full hover:bg-white/10">
                         <i data-lucide="search" class="w-5 h-5"></i>
                     </button>
-                    <!-- Default Anonymous White Profile Icon -->
-                    <div id="user-avatar-container" class="w-9 h-9 rounded-full bg-white/15 border border-white/30 flex items-center justify-center text-white shadow-md overflow-hidden">
+                    <div onclick="switchTab('profile')" class="cursor-pointer w-9 h-9 rounded-full bg-white/15 border border-white/30 flex items-center justify-center text-white shadow-md overflow-hidden">
                         <i data-lucide="user" class="w-5 h-5 text-white"></i>
                     </div>
                 </div>
             </header>
 
-            <!-- 1. CURRENCY EXCHANGE CARD (Real dynamic rates) -->
+            <!-- 1. CURRENCY EXCHANGE CARD -->
             <section class="glass-card rounded-2xl p-3 mb-4 border border-white/10">
                 <div class="flex items-center justify-between mb-2 px-1">
                     <span class="text-[11px] font-medium text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
@@ -268,7 +264,6 @@
                 </div>
 
                 <div class="grid grid-cols-3 gap-2 text-center">
-                    <!-- USD Card -->
                     <div class="bg-white/5 rounded-xl p-2 border border-white/5 flex flex-col items-center">
                         <div class="flex items-center space-x-1 text-xs font-semibold text-white">
                             <span class="w-2 h-2 rounded-full bg-blue-500"></span>
@@ -280,7 +275,6 @@
                         </span>
                     </div>
 
-                    <!-- EUR Card -->
                     <div class="bg-white/5 rounded-xl p-2 border border-white/5 flex flex-col items-center">
                         <div class="flex items-center space-x-1 text-xs font-semibold text-white">
                             <span class="w-2 h-2 rounded-full bg-purple-500"></span>
@@ -292,7 +286,6 @@
                         </span>
                     </div>
 
-                    <!-- Custom Currency Selector Card -->
                     <div class="bg-white/5 rounded-xl p-2 border border-white/5 flex flex-col items-center">
                         <select id="currency-select" onchange="updateSelectedCurrency()" class="bg-transparent text-[11px] font-semibold text-white focus:outline-none cursor-pointer text-center">
                             <option value="RUB" class="bg-navy-base text-white">RUB</option>
@@ -308,11 +301,10 @@
                 </div>
             </section>
 
-            <!-- 2. UZBEKISTON REGIONS WEATHER WIDGET (WITH SHAHRIXON/ANDIJON & HOURLY FORECAST) -->
+            <!-- 2. UZBEKISTON REGIONS WEATHER WIDGET -->
             <section class="glass-card rounded-2xl p-4 mb-5 border border-white/10 relative overflow-hidden">
                 <div class="flex justify-between items-start mb-3">
                     <div>
-                        <!-- Region & District Selector for Uzbekistan -->
                         <div class="flex items-center space-x-1 text-cyan-400 text-xs font-medium mb-1">
                             <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
                             <select id="region-selector" onchange="fetchWeatherForRegion()" class="bg-transparent border-b border-cyan-500/40 text-cyan-300 text-xs font-semibold focus:outline-none cursor-pointer">
@@ -342,102 +334,48 @@
                     </div>
                 </div>
 
-                <!-- 24-Hour Hourly Forecast (Horizontal Slider) -->
                 <div class="mt-3 pt-3 border-t border-white/10">
                     <span class="text-[10px] text-gray-400 uppercase tracking-wider block mb-2 font-semibold">Bugungi soatbay prognoz</span>
                     <div id="hourly-forecast-container" class="flex space-x-3 overflow-x-auto no-scrollbar py-1">
-                        <!-- Dynamically filled with hours -->
                         <div class="text-center min-w-[45px] text-[10px] text-gray-400">Loading...</div>
                     </div>
                 </div>
             </section>
+        </div>
 
-            <!-- 3. BREAKING NEWS PLACEHOLDER (Ready for real API integration) -->
-            <section class="mb-5">
-                <div class="flex justify-between items-center mb-3">
-                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                        <i data-lucide="zap" class="w-4 h-4 text-amber-400"></i>
-                        So'nggi Yangiliklar
-                    </h3>
-                    <span class="text-[10px] text-gray-400 italic">API kutilmoqda</span>
+        <!-- ==================== SEARCH / ACCOUNTS TAB (4TH BOT NAV / TAB) ==================== -->
+        <div id="search-users-screen" class="hidden w-full flex flex-col pt-4 px-3 sm:px-0">
+            <h2 class="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                <i data-lucide="user-search" class="w-5 h-5 text-cyan-400"></i>
+                Akkountlar Qidiruvi
+            </h2>
+
+            <!-- Search Input -->
+            <div class="relative mb-4">
+                <input type="text" id="main-account-search" oninput="renderAccountSearchResults()" placeholder="Nickname, Ism yoki Familiya..." class="w-full glass-input rounded-2xl py-3 pl-10 pr-4 text-xs font-medium placeholder-gray-400">
+                <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3.5 text-gray-400"></i>
+            </div>
+
+            <!-- Search Results Container -->
+            <div id="account-search-results" class="space-y-3">
+                <!-- Dynamically populated -->
+            </div>
+        </div>
+
+        <!-- ==================== PUBLIC USER PROFILE VIEW MODAL ==================== -->
+        <div id="public-profile-modal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-md p-0 sm:p-4">
+            <div class="glass-panel w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 border border-white/15 max-h-[90vh] overflow-y-auto no-scrollbar">
+                <div class="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
+                    <span class="text-xs font-bold text-cyan-300">Profil ma'lumotlari</span>
+                    <button onclick="closePublicProfileModal()" class="text-gray-400 hover:text-white p-1">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
                 </div>
 
-                <div class="flex space-x-3 overflow-x-auto no-scrollbar pb-2">
-                    <!-- Clean Glass Empty News Slot 1 -->
-                    <div class="min-w-[200px] w-[200px] glass-card rounded-2xl p-3 border border-white/10 flex-shrink-0 flex flex-col justify-between h-32 relative group">
-                        <div class="flex items-center justify-between text-gray-500">
-                            <i data-lucide="newspaper" class="w-6 h-6 text-purple-400/60"></i>
-                            <span class="text-[9px] bg-white/5 px-2 py-0.5 rounded-full border border-white/10">Bo'sh bo'lim</span>
-                        </div>
-                        <div>
-                            <div class="h-2.5 bg-white/10 rounded w-3/4 mb-1.5 animate-pulse"></div>
-                            <div class="h-2 bg-white/5 rounded w-1/2 animate-pulse"></div>
-                        </div>
-                        <span class="text-[9px] text-gray-500">Real yangiliklar tasmasi o'rni</span>
-                    </div>
-
-                    <!-- Clean Glass Empty News Slot 2 -->
-                    <div class="min-w-[200px] w-[200px] glass-card rounded-2xl p-3 border border-white/10 flex-shrink-0 flex flex-col justify-between h-32 relative">
-                        <div class="flex items-center justify-between text-gray-500">
-                            <i data-lucide="rss" class="w-6 h-6 text-cyan-400/60"></i>
-                            <span class="text-[9px] bg-white/5 px-2 py-0.5 rounded-full border border-white/10">Bo'sh bo'lim</span>
-                        </div>
-                        <div>
-                            <div class="h-2.5 bg-white/10 rounded w-4/5 mb-1.5 animate-pulse"></div>
-                            <div class="h-2 bg-white/5 rounded w-2/3 animate-pulse"></div>
-                        </div>
-                        <span class="text-[9px] text-gray-500">Real yangiliklar tasmasi o'rni</span>
-                    </div>
-
-                    <!-- Clean Glass Empty News Slot 3 -->
-                    <div class="min-w-[200px] w-[200px] glass-card rounded-2xl p-3 border border-white/10 flex-shrink-0 flex flex-col justify-between h-32 relative">
-                        <div class="flex items-center justify-between text-gray-500">
-                            <i data-lucide="globe" class="w-6 h-6 text-blue-400/60"></i>
-                            <span class="text-[9px] bg-white/5 px-2 py-0.5 rounded-full border border-white/10">Bo'sh bo'lim</span>
-                        </div>
-                        <div>
-                            <div class="h-2.5 bg-white/10 rounded w-2/3 mb-1.5 animate-pulse"></div>
-                            <div class="h-2 bg-white/5 rounded w-1/3 animate-pulse"></div>
-                        </div>
-                        <span class="text-[9px] text-gray-500">Real yangiliklar tasmasi o'rni</span>
-                    </div>
+                <div id="public-profile-content">
+                    <!-- Loaded dynamically -->
                 </div>
-            </section>
-
-            <!-- 4. SHOP DEALS PLACEHOLDER (Ready for real e-commerce API) -->
-            <section class="mb-5">
-                <div class="flex justify-between items-center mb-3">
-                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                        <i data-lucide="shopping-bag" class="w-4 h-4 text-cyan-400"></i>
-                        Do'kon Chegirmalari
-                    </h3>
-                    <span class="text-[10px] text-gray-400 italic">API kutilmoqda</span>
-                </div>
-
-                <div class="grid grid-cols-3 gap-2.5">
-                    <!-- Shop Placeholder 1 -->
-                    <div class="glass-card rounded-2xl p-3 border border-white/10 flex flex-col items-center justify-center text-center h-28 relative">
-                        <i data-lucide="tag" class="w-6 h-6 text-amber-400/50 mb-2"></i>
-                        <span class="text-[10px] font-semibold text-gray-400">Chegirmalar</span>
-                        <span class="text-[8px] text-gray-500 mt-1">Real tovarlar joyi</span>
-                    </div>
-
-                    <!-- Shop Placeholder 2 -->
-                    <div class="glass-card rounded-2xl p-3 border border-white/10 flex flex-col items-center justify-center text-center h-28 relative">
-                        <i data-lucide="percent" class="w-6 h-6 text-emerald-400/50 mb-2"></i>
-                        <span class="text-[10px] font-semibold text-gray-400">Aksiyalar</span>
-                        <span class="text-[8px] text-gray-500 mt-1">Real tovarlar joyi</span>
-                    </div>
-
-                    <!-- Shop Placeholder 3 -->
-                    <div class="glass-card rounded-2xl p-3 border border-white/10 flex flex-col items-center justify-center text-center h-28 relative">
-                        <i data-lucide="gift" class="w-6 h-6 text-purple-400/50 mb-2"></i>
-                        <span class="text-[10px] font-semibold text-gray-400">Takliflar</span>
-                        <span class="text-[8px] text-gray-500 mt-1">Real tovarlar joyi</span>
-                    </div>
-                </div>
-            </section>
-
+            </div>
         </div>
 
         <!-- ==================== PROFILE SCREEN ==================== -->
@@ -453,15 +391,14 @@
                         <i data-lucide="plus-square" class="w-5 h-5"></i>
                     </button>
                     <button onclick="switchTab('settings')" class="p-2 glass-card rounded-xl text-gray-300 hover:text-white border border-white/10">
-                        <i data-lucide="menu" class="w-5 h-5"></i>
+                        <i data-lucide="settings" class="w-5 h-5"></i>
                     </button>
                 </div>
             </div>
 
-            <!-- Profile Info Card (Instagram Style) -->
+            <!-- Profile Info Card -->
             <div class="glass-card rounded-2xl p-4 mb-4 border border-white/10">
                 <div class="flex items-center justify-between">
-                    <!-- Profile Picture -->
                     <div class="relative group">
                         <div class="w-20 h-20 rounded-full p-[2px] bg-gradient-to-tr from-cyan-400 via-indigo-500 to-purple-500">
                             <div id="profile-avatar" class="w-full h-full rounded-full bg-navy-base border-2 border-navy-base flex items-center justify-center overflow-hidden text-white font-bold text-xl">
@@ -470,7 +407,6 @@
                         </div>
                     </div>
 
-                    <!-- Stats / Friends Counter -->
                     <div class="flex justify-around items-center flex-1 ml-4 text-center">
                         <div>
                             <span id="stat-posts" class="block text-base font-bold text-white">0</span>
@@ -487,17 +423,32 @@
                     </div>
                 </div>
 
-                <!-- User Details -->
-                <div class="mt-3">
+                <!-- User Personal Attributes -->
+                <div class="mt-3.5 space-y-1.5 border-t border-white/10 pt-3">
                     <h3 id="profile-fullname" class="text-xs font-bold text-white">Ism Familiya</h3>
-                    <p id="profile-bio" class="text-[11px] text-gray-300 mt-0.5">🔒 Post va medialar faqat tasdiqlangan do'stlarga ko'rinadi</p>
+                    
+                    <p id="profile-occupation-badge" class="text-[11px] font-medium text-cyan-300 flex items-center gap-1.5">
+                        <i data-lucide="briefcase" class="w-3 h-3 text-cyan-400"></i> <span id="profile-occupation">Kasbi ko'rsatilmagan</span>
+                    </p>
+
+                    <p id="profile-motto-box" class="text-[11px] text-amber-300/90 italic flex items-center gap-1.5">
+                        <i data-lucide="quote" class="w-3 h-3 text-amber-400"></i> "<span id="profile-motto">Shior kiritilmagan</span>"
+                    </p>
+
+                    <p id="profile-music-box" class="text-[11px] text-purple-300 flex items-center gap-1.5">
+                        <i data-lucide="music" class="w-3 h-3 text-purple-400"></i> <span id="profile-music">Sevimli qo'shiq kiritilmagan</span>
+                    </p>
+
+                    <p id="profile-bio-box" class="text-[11px] text-gray-300 mt-1 flex items-start gap-1.5">
+                        <i data-lucide="info" class="w-3 h-3 text-gray-400 mt-0.5"></i> <span id="profile-bio">O'zi haqida ma'lumot yo'q</span>
+                    </p>
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="grid grid-cols-2 gap-2 mt-3.5">
-                    <button onclick="openFriendsModal('add')" class="py-2 px-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-all">
-                        <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
-                        Do'st qo'shish
+                <div class="grid grid-cols-2 gap-2 mt-4">
+                    <button onclick="switchTab('settings')" class="py-2 px-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-all">
+                        <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                        Profilni tahrirlash
                     </button>
                     <button onclick="openFriendsModal('friends')" class="py-2 px-3 glass-input rounded-xl text-xs font-semibold text-gray-200 flex items-center justify-center gap-1.5 hover:bg-white/10 transition-all">
                         <i data-lucide="users" class="w-3.5 h-3.5"></i>
@@ -506,7 +457,7 @@
                 </div>
             </div>
 
-            <!-- Media Feed Tabs (Photos & Videos) -->
+            <!-- Media Feed Tabs -->
             <div class="flex border-b border-white/10 mb-3">
                 <button id="feed-tab-all" onclick="setFeedFilter('all')" class="flex-1 py-2 text-center text-xs font-semibold border-b-2 border-cyan-400 text-cyan-300 flex items-center justify-center gap-1.5">
                     <i data-lucide="grid" class="w-3.5 h-3.5"></i> Barchasi
@@ -521,10 +472,8 @@
 
             <!-- Posts Grid Container -->
             <div id="posts-grid" class="grid grid-cols-3 gap-1.5 pb-20">
-                <!-- Posts populated dynamically -->
             </div>
 
-            <!-- Empty Posts Message -->
             <div id="empty-posts-msg" class="hidden flex flex-col items-center justify-center py-10 text-center">
                 <div class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-gray-500 mb-2">
                     <i data-lucide="camera" class="w-6 h-6"></i>
@@ -532,6 +481,50 @@
                 <p class="text-xs font-medium text-gray-400">Hozircha postlar yo'q</p>
                 <p class="text-[10px] text-gray-500 mt-0.5">Rasm yoki video ulashish uchun + tugmasini bosing</p>
             </div>
+        </div>
+
+        <!-- ==================== SETTINGS SCREEN ==================== -->
+        <div id="settings-screen" class="hidden w-full flex flex-col pt-4 px-3 sm:px-0">
+            <h2 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                <i data-lucide="sliders" class="w-5 h-5 text-cyan-400"></i>
+                Ixtiroxiy Sozlamalar
+            </h2>
+
+            <form onsubmit="handleSaveSettings(event)" class="space-y-4 glass-card rounded-2xl p-4 border border-white/10">
+                <div>
+                    <label class="block text-xs font-medium text-gray-300 mb-1">Kasbingiz / Faoliyatingiz</label>
+                    <input type="text" id="setting-occupation" placeholder="Masalan: Dasturchi, Talaba, Shifokor..." class="w-full glass-input rounded-xl py-2.5 px-3 text-xs">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-gray-300 mb-1">Hayotdagi shioringiz</label>
+                    <input type="text" id="setting-motto" placeholder="Masalan: Harakatda barakat..." class="w-full glass-input rounded-xl py-2.5 px-3 text-xs">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-gray-300 mb-1">Sevimli musiqangiz / ijrochi</label>
+                    <input type="text" id="setting-music" placeholder="Masalan: Konsta - O'zbekistonlik..." class="w-full glass-input rounded-xl py-2.5 px-3 text-xs">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-gray-300 mb-1">O'zingiz haqida ma'lumot</label>
+                    <textarea id="setting-bio" rows="3" placeholder="Qiziqishlaringiz, maqsadlaringiz va hakazolar..." class="w-full glass-input rounded-xl py-2.5 px-3 text-xs resize-none"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-gray-300 mb-1">Profil rasmi havolasi (URL)</label>
+                    <input type="url" id="setting-avatar" placeholder="https://..." class="w-full glass-input rounded-xl py-2.5 px-3 text-xs">
+                </div>
+
+                <button type="submit" class="w-full py-3 bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 text-white font-bold rounded-xl text-xs shadow-lg shadow-cyan-600/30 active:scale-95 transition-all">
+                    Sozlamalarni saqlash
+                </button>
+            </form>
+
+            <button onclick="handleLogout()" class="w-full mt-4 py-3 bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 font-semibold rounded-xl text-xs transition-all flex items-center justify-center gap-2">
+                <i data-lucide="log-out" class="w-4 h-4"></i>
+                Hisobdan chiqish
+            </button>
         </div>
 
         <!-- ==================== FRIENDS & REQUESTS MODAL ==================== -->
@@ -547,7 +540,6 @@
                     </button>
                 </div>
 
-                <!-- Modal Filter Tabs -->
                 <div class="flex space-x-2 my-3">
                     <button id="modal-tab-friends" onclick="switchFriendsTab('friends')" class="flex-1 py-1.5 text-center text-xs font-medium rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
                         Do'stlar (<span id="modal-friends-count">0</span>)
@@ -555,22 +547,9 @@
                     <button id="modal-tab-requests" onclick="switchFriendsTab('requests')" class="flex-1 py-1.5 text-center text-xs font-medium rounded-xl bg-white/5 text-gray-300 border border-white/10">
                         So'rovlar (<span id="modal-requests-count">0</span>)
                     </button>
-                    <button id="modal-tab-add" onclick="switchFriendsTab('add')" class="flex-1 py-1.5 text-center text-xs font-medium rounded-xl bg-white/5 text-gray-300 border border-white/10">
-                        Qidiruv
-                    </button>
                 </div>
 
-                <!-- Tab 1: Search Users -->
-                <div id="tab-add-content" class="hidden mb-3">
-                    <div class="relative">
-                        <input type="text" id="friend-search-input" oninput="searchUsersToConnect()" placeholder="Nickname bo'yicha qidirish..." class="w-full glass-input rounded-xl py-2 pl-8 pr-3 text-xs">
-                        <i data-lucide="search" class="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-gray-400"></i>
-                    </div>
-                </div>
-
-                <!-- List Content -->
                 <div id="modal-friends-list" class="overflow-y-auto space-y-2 flex-1 max-h-[350px] pr-1 no-scrollbar">
-                    <!-- Dynamic Friends / Requests -->
                 </div>
             </div>
         </div>
@@ -607,10 +586,6 @@
                         <textarea id="post-caption" rows="2" placeholder="Do'stlaringiz uchun izoh..." class="w-full glass-input rounded-xl py-2 px-3 text-xs resize-none"></textarea>
                     </div>
 
-                    <p class="text-[10px] text-cyan-300/80 flex items-center gap-1">
-                        <i data-lucide="lock" class="w-3 h-3"></i> Bu post faqat do'stlaringizga ko'rinadi
-                    </p>
-
                     <button type="submit" class="w-full py-2.5 px-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl shadow-md text-xs">
                         Ulashish
                     </button>
@@ -626,22 +601,22 @@
                 <span class="text-[10px] font-bold mt-1">Home</span>
             </button>
 
-            <!-- 2. SEARCH / EXPLORE -->
-            <button id="nav-btn-explore" onclick="switchTab('explore')" class="flex flex-col items-center text-gray-500 hover:text-gray-300 transition-all">
-                <i data-lucide="compass" class="w-5 h-5"></i>
-                <span class="text-[10px] font-medium mt-1">Kashfiyot</span>
-            </button>
-
-            <!-- 3. PROFILE -->
+            <!-- 2. PROFILE -->
             <button id="nav-btn-profile" onclick="switchTab('profile')" class="flex flex-col items-center text-gray-400 hover:text-white transition-all">
                 <i data-lucide="user" class="w-5 h-5"></i>
                 <span class="text-[10px] font-medium mt-1">Profil</span>
             </button>
 
-            <!-- 4. MESSAGES -->
+            <!-- 3. MESSAGES -->
             <button id="nav-btn-chats" onclick="switchTab('chats')" class="flex flex-col items-center text-gray-500 hover:text-gray-300 transition-all">
                 <i data-lucide="message-square" class="w-5 h-5"></i>
                 <span class="text-[10px] font-medium mt-1">Xabarlar</span>
+            </button>
+
+            <!-- 4. ACCOUNTS SEARCH (YANGI QO'SHILDI) -->
+            <button id="nav-btn-search-users" onclick="switchTab('search-users')" class="flex flex-col items-center text-gray-400 hover:text-white transition-all">
+                <i data-lucide="user-search" class="w-5 h-5"></i>
+                <span class="text-[10px] font-medium mt-1">Qidiruv</span>
             </button>
 
             <!-- 5. SETTINGS -->
@@ -653,31 +628,19 @@
 
     </div>
 
-    <!-- JS Logic for Auto-Login, Session Management & Regional Weather -->
+    <!-- JS Application Logic -->
     <script>
         let currentFeedFilter = 'all';
         let currentActiveTab = 'home';
         
-        // Mock friends data structure in LocalStorage
-        let friendsDB = JSON.parse(localStorage.getItem('fapp_friends_db')) || {
-            // format: 'username': { friends: [], requests: [], outgoing: [] }
-        };
+        let friendsDB = JSON.parse(localStorage.getItem('fapp_friends_db')) || {};
+        let postsDB = JSON.parse(localStorage.getItem('fapp_posts_db')) || [];
 
-        let postsDB = JSON.parse(localStorage.getItem('fapp_posts_db')) || [
-            {
-                id: 1,
-                author: 'fayzillo_009',
-                type: 'photo',
-                url: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=600&q=80',
-                caption: 'Bugungi ajoyib kun! 🚀',
-                date: 'Bugun'
-            }
-        ];
+        // Users database without fake default accounts
+        let usersDB = JSON.parse(localStorage.getItem('fapp_users')) || {};
 
-        // Initialize Lucide Vector Icons
         lucide.createIcons();
 
-        // Coordinates mapping for Uzbekistan regions & Shahrixon
         const uzbekistanRegions = {
             shahrixon: { lat: 40.7139, lon: 72.0578, name: "Andijon, Shahrixon tumani" },
             andijan: { lat: 40.7821, lon: 72.3442, name: "Andijon shahri" },
@@ -692,14 +655,6 @@
             surxondaryo: { lat: 37.2242, lon: 67.2783, name: "Termiz shahri" }
         };
 
-        // Users database in LocalStorage
-        let usersDB = JSON.parse(localStorage.getItem('fapp_users')) || {
-            'fayzillo_009': { firstname: 'Fayzullo', lastname: 'Anvarov', age: 20, gender: 'male', password: 'password123' },
-            'alisher_uz': { firstname: 'Alisher', lastname: 'Navoiy', age: 22, gender: 'male', password: 'password123' },
-            'laylo_star': { firstname: 'Laylo', lastname: 'Sodiqova', age: 19, gender: 'female', password: 'password123' }
-        };
-
-        // Automatic Application Launch Sequence on Window Load
         window.addEventListener('load', () => {
             startSplashTimer();
         });
@@ -708,17 +663,13 @@
             const progressBar = document.getElementById('splash-progress');
             if (progressBar) progressBar.style.width = '100%';
 
-            // 3-second timer before redirecting
             setTimeout(() => {
                 document.getElementById('splash-screen').classList.add('hidden');
                 
-                // AUTO LOGIN CHECK: Check if session key exists
                 const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER');
                 if (activeUserKey && usersDB[activeUserKey]) {
-                    // Session exists: Go directly to Home Screen
                     launchHomeScreen();
                 } else {
-                    // No session: Go to Auth Screen
                     document.getElementById('auth-screen').classList.remove('hidden');
                 }
             }, 3000);
@@ -727,12 +678,13 @@
         function switchTab(tabName) {
             currentActiveTab = tabName;
             
-            // Hide screens
+            // Hide all main tab views
             document.getElementById('home-screen').classList.add('hidden');
             document.getElementById('profile-screen').classList.add('hidden');
+            document.getElementById('settings-screen').classList.add('hidden');
+            document.getElementById('search-users-screen').classList.add('hidden');
 
-            // Reset navigation highlight styles
-            const navButtons = ['home', 'explore', 'profile', 'chats', 'settings'];
+            const navButtons = ['home', 'profile', 'chats', 'search-users', 'settings'];
             navButtons.forEach(btn => {
                 const navBtn = document.getElementById(`nav-btn-${btn}`);
                 if (navBtn) {
@@ -740,11 +692,18 @@
                 }
             });
 
-            // Activate chosen tab
             if (tabName === 'profile') {
                 document.getElementById('profile-screen').classList.remove('hidden');
                 document.getElementById('nav-btn-profile').className = "flex flex-col items-center text-cyan-400 transition-all font-bold";
                 loadProfileData();
+            } else if (tabName === 'settings') {
+                document.getElementById('settings-screen').classList.remove('hidden');
+                document.getElementById('nav-btn-settings').className = "flex flex-col items-center text-cyan-400 transition-all font-bold";
+                populateSettingsForm();
+            } else if (tabName === 'search-users') {
+                document.getElementById('search-users-screen').classList.remove('hidden');
+                document.getElementById('nav-btn-search-users').className = "flex flex-col items-center text-cyan-400 transition-all font-bold";
+                renderAccountSearchResults();
             } else {
                 document.getElementById('home-screen').classList.remove('hidden');
                 document.getElementById('nav-btn-home').className = "flex flex-col items-center text-cyan-400 transition-all font-bold";
@@ -753,15 +712,27 @@
         }
 
         function loadProfileData() {
-            const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER') || 'fayzillo_009';
-            const user = usersDB[activeUserKey] || { firstname: 'Fayzullo', lastname: 'Anvarov' };
+            const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER');
+            if (!activeUserKey || !usersDB[activeUserKey]) return;
+
+            const user = usersDB[activeUserKey];
 
             document.getElementById('profile-username').innerText = `@${activeUserKey}`;
             document.getElementById('profile-fullname').innerText = `${user.firstname} ${user.lastname}`;
 
-            // Initialize user friend node if empty
+            document.getElementById('profile-occupation').innerText = user.occupation || "Kasbi ko'rsatilmagan";
+            document.getElementById('profile-motto').innerText = user.motto || "Shior kiritilmagan";
+            document.getElementById('profile-music').innerText = user.music || "Sevimli qo'shiq kiritilmagan";
+            document.getElementById('profile-bio').innerText = user.bio || "O'zi haqida ma'lumot yo'q";
+
+            if (user.avatarUrl) {
+                document.getElementById('profile-avatar').innerHTML = `<img src="${user.avatarUrl}" class="w-full h-full object-cover rounded-full">`;
+            } else {
+                document.getElementById('profile-avatar').innerHTML = `<i data-lucide="user" class="w-10 h-10 text-white/80"></i>`;
+            }
+
             if (!friendsDB[activeUserKey]) {
-                friendsDB[activeUserKey] = { friends: ['alisher_uz'], requests: ['laylo_star'], outgoing: [] };
+                friendsDB[activeUserKey] = { friends: [], requests: [] };
                 localStorage.setItem('fapp_friends_db', JSON.stringify(friendsDB));
             }
 
@@ -774,6 +745,148 @@
             document.getElementById('stat-posts').innerText = userPosts.length;
 
             renderProfilePosts(userPosts);
+        }
+
+        function populateSettingsForm() {
+            const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER');
+            if (!activeUserKey || !usersDB[activeUserKey]) return;
+
+            const user = usersDB[activeUserKey];
+
+            document.getElementById('setting-occupation').value = user.occupation || '';
+            document.getElementById('setting-motto').value = user.motto || '';
+            document.getElementById('setting-music').value = user.music || '';
+            document.getElementById('setting-bio').value = user.bio || '';
+            document.getElementById('setting-avatar').value = user.avatarUrl || '';
+        }
+
+        function handleSaveSettings(e) {
+            e.preventDefault();
+            const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER');
+            if (!activeUserKey || !usersDB[activeUserKey]) return;
+
+            usersDB[activeUserKey].occupation = document.getElementById('setting-occupation').value.trim();
+            usersDB[activeUserKey].motto = document.getElementById('setting-motto').value.trim();
+            usersDB[activeUserKey].music = document.getElementById('setting-music').value.trim();
+            usersDB[activeUserKey].bio = document.getElementById('setting-bio').value.trim();
+            usersDB[activeUserKey].avatarUrl = document.getElementById('setting-avatar').value.trim();
+
+            localStorage.setItem('fapp_users', JSON.stringify(usersDB));
+            alert("Sozlamalar saqlandi!");
+            switchTab('profile');
+        }
+
+        function renderAccountSearchResults() {
+            const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER');
+            const query = (document.getElementById('main-account-search')?.value || '').toLowerCase().trim();
+            const resultsContainer = document.getElementById('account-search-results');
+            resultsContainer.innerHTML = '';
+
+            const userKeys = Object.keys(usersDB).filter(k => k !== activeUserKey);
+
+            const filteredKeys = userKeys.filter(k => {
+                const u = usersDB[k];
+                const fullName = `${u.firstname} ${u.lastname}`.toLowerCase();
+                return k.toLowerCase().includes(query) || fullName.includes(query);
+            });
+
+            if (filteredKeys.length === 0) {
+                resultsContainer.innerHTML = `<p class="text-xs text-gray-400 text-center py-8">Hech qanday profil topilmadi</p>`;
+                return;
+            }
+
+            filteredKeys.forEach(k => {
+                const u = usersDB[k];
+                const targetFriends = (friendsDB[k] && friendsDB[k].friends) ? friendsDB[k].friends : [];
+                const isFriend = targetFriends.includes(activeUserKey);
+                const hasPendingReq = friendsDB[k] && friendsDB[k].requests && friendsDB[k].requests.includes(activeUserKey);
+
+                const card = document.createElement('div');
+                card.className = 'glass-card rounded-2xl p-3 border border-white/10 flex items-center justify-between';
+                
+                card.innerHTML = `
+                    <div class="flex items-center space-x-3 cursor-pointer" onclick="openPublicProfileModal('${k}')">
+                        <div class="w-11 h-11 rounded-full bg-indigo-500/20 border border-indigo-500/30 overflow-hidden flex items-center justify-center font-bold text-white text-sm">
+                            ${u.avatarUrl ? `<img src="${u.avatarUrl}" class="w-full h-full object-cover">` : u.firstname[0]}
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-white">${u.firstname} ${u.lastname}</h4>
+                            <span class="text-[10px] text-cyan-300">@${k}</span>
+                            <span class="block text-[9px] text-gray-400 mt-0.5">${targetFriends.length} ta do'sti bor</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        ${isFriend ? 
+                            `<span class="text-[10px] px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Do'stsiz</span>` :
+                          hasPendingReq ?
+                            `<span class="text-[10px] px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30">Yuborilgan</span>` :
+                            `<button onclick="sendFriendRequest('${k}')" class="px-3 py-1.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-semibold rounded-xl text-[10px] shadow-md">Do'stlik taklifi</button>`
+                        }
+                    </div>
+                `;
+                resultsContainer.appendChild(card);
+            });
+        }
+
+        function openPublicProfileModal(targetNick) {
+            const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER');
+            const targetUser = usersDB[targetNick];
+            if (!targetUser) return;
+
+            const targetFriends = (friendsDB[targetNick] && friendsDB[targetNick].friends) ? friendsDB[targetNick].friends : [];
+            const isFriend = targetFriends.includes(activeUserKey);
+            const hasPendingReq = friendsDB[targetNick] && friendsDB[targetNick].requests && friendsDB[targetNick].requests.includes(activeUserKey);
+
+            const container = document.getElementById('public-profile-content');
+            
+            container.innerHTML = `
+                <div class="flex flex-col items-center text-center">
+                    <div class="w-20 h-20 rounded-full p-[2px] bg-gradient-to-tr from-cyan-400 to-purple-500 mb-2">
+                        <div class="w-full h-full rounded-full bg-navy-base flex items-center justify-center overflow-hidden text-white font-bold text-xl">
+                            ${targetUser.avatarUrl ? `<img src="${targetUser.avatarUrl}" class="w-full h-full object-cover">` : targetUser.firstname[0]}
+                        </div>
+                    </div>
+
+                    <h3 class="text-sm font-bold text-white">${targetUser.firstname} ${targetUser.lastname}</h3>
+                    <span class="text-xs text-cyan-300">@${targetNick}</span>
+                    <span class="text-[10px] text-gray-400 mt-1">${targetFriends.length} ta do'sti bor</span>
+
+                    <!-- Additional Details -->
+                    <div class="w-full space-y-2 mt-4 text-left glass-card p-3 rounded-xl border border-white/10">
+                        <p class="text-[11px] text-cyan-300 flex items-center gap-1.5"><i data-lucide="briefcase" class="w-3.5 h-3.5"></i> Kasbi: ${targetUser.occupation || "Kiritilmagan"}</p>
+                        <p class="text-[11px] text-amber-300 flex items-center gap-1.5"><i data-lucide="quote" class="w-3.5 h-3.5"></i> Shiori: "${targetUser.motto || "Kiritilmagan"}"</p>
+                        <p class="text-[11px] text-purple-300 flex items-center gap-1.5"><i data-lucide="music" class="w-3.5 h-3.5"></i> Qo'shiq: ${targetUser.music || "Kiritilmagan"}</p>
+                        <p class="text-[11px] text-gray-300 flex items-start gap-1.5"><i data-lucide="info" class="w-3.5 h-3.5 mt-0.5"></i> Haqida: ${targetUser.bio || "Ma'lumot yo'q"}</p>
+                    </div>
+
+                    <!-- Privacy Protected Media & Friends Section -->
+                    <div class="w-full mt-4">
+                        ${isFriend ? `
+                            <div class="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-center">
+                                <p class="text-xs text-emerald-300 font-semibold">Siz bu foydalanuvchi bilan do'stsiz!</p>
+                            </div>
+                        ` : `
+                            <div class="p-4 bg-white/5 border border-white/10 rounded-xl text-center">
+                                <i data-lucide="lock" class="w-6 h-6 text-cyan-400 mx-auto mb-1"></i>
+                                <p class="text-xs font-semibold text-white">Profil yopiq</p>
+                                <p class="text-[10px] text-gray-400 mt-0.5">Rasmlar va do'stlar ro'yxati faqat do'stlik taklifi qabul qilingandan so'ng ko'rinadi.</p>
+                                ${hasPendingReq ? 
+                                    `<span class="inline-block mt-3 px-3 py-1 bg-amber-500/20 text-amber-300 rounded-lg text-xs">Taklif yuborilgan</span>` :
+                                    `<button onclick="sendFriendRequest('${targetNick}')" class="mt-3 px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-bold rounded-xl text-xs shadow-md">Do'stlik taklifi jo'natish</button>`
+                                }
+                            </div>
+                        `}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('public-profile-modal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closePublicProfileModal() {
+            document.getElementById('public-profile-modal').classList.add('hidden');
         }
 
         function renderProfilePosts(posts) {
@@ -826,7 +939,7 @@
             const activeBtn = document.getElementById(`feed-tab-${type === 'photo' ? 'photos' : type === 'video' ? 'videos' : 'all'}`);
             if (activeBtn) activeBtn.className = "flex-1 py-2 text-center text-xs font-semibold border-b-2 border-cyan-400 text-cyan-300 flex items-center justify-center gap-1.5";
 
-            const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER') || 'fayzillo_009';
+            const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER');
             const userPosts = postsDB.filter(p => p.author === activeUserKey);
             renderProfilePosts(userPosts);
         }
@@ -841,19 +954,11 @@
         }
 
         function switchFriendsTab(tab) {
-            const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER') || 'fayzillo_009';
+            const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER');
             const userData = friendsDB[activeUserKey] || { friends: [], requests: [] };
 
             document.getElementById('modal-friends-count').innerText = userData.friends.length;
             document.getElementById('modal-requests-count').innerText = userData.requests.length;
-
-            const searchContainer = document.getElementById('tab-add-content');
-            if (tab === 'add') {
-                searchContainer.classList.remove('hidden');
-                searchUsersToConnect();
-            } else {
-                searchContainer.classList.add('hidden');
-            }
 
             const list = document.getElementById('modal-friends-list');
             list.innerHTML = '';
@@ -868,7 +973,7 @@
                     const div = document.createElement('div');
                     div.className = 'flex items-center justify-between p-2.5 rounded-2xl bg-white/5 border border-white/5';
                     div.innerHTML = `
-                        <div class="flex items-center space-x-2.5">
+                        <div class="flex items-center space-x-2.5 cursor-pointer" onclick="openPublicProfileModal('${friendNick}')">
                             <div class="w-9 h-9 rounded-full bg-cyan-500/20 text-cyan-300 flex items-center justify-center font-bold text-xs border border-cyan-500/30">
                                 ${u.firstname[0]}
                             </div>
@@ -891,7 +996,7 @@
                     const div = document.createElement('div');
                     div.className = 'flex items-center justify-between p-2.5 rounded-2xl bg-white/5 border border-white/5';
                     div.innerHTML = `
-                        <div class="flex items-center space-x-2.5">
+                        <div class="flex items-center space-x-2.5 cursor-pointer" onclick="openPublicProfileModal('${reqNick}')">
                             <div class="w-9 h-9 rounded-full bg-purple-500/20 text-purple-300 flex items-center justify-center font-bold text-xs border border-purple-500/30">
                                 ${u.firstname[0]}
                             </div>
@@ -900,74 +1005,45 @@
                                 <span class="text-[10px] text-gray-400">@${reqNick}</span>
                             </div>
                         </div>
-                        <div class="flex space-x-1.5">
-                            <button onclick="acceptFriendRequest('${reqNick}')" class="px-2.5 py-1 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg text-[10px] font-semibold">Qabul qilish</button>
-                        </div>
+                        <button onclick="acceptFriendRequest('${reqNick}')" class="px-2.5 py-1 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg text-[10px] font-semibold">Qabul qilish</button>
                     `;
                     list.appendChild(div);
                 });
             }
         }
 
-        function searchUsersToConnect() {
-            const query = document.getElementById('friend-search-input').value.toLowerCase().trim();
-            const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER') || 'fayzillo_009';
-            const list = document.getElementById('modal-friends-list');
-            list.innerHTML = '';
-
-            const keys = Object.keys(usersDB).filter(k => k !== activeUserKey && k.includes(query));
-            if (keys.length === 0) {
-                list.innerHTML = `<p class="text-xs text-gray-400 text-center py-6">Foydalanuvchilar topilmadi</p>`;
-                return;
-            }
-
-            keys.forEach(k => {
-                const u = usersDB[k];
-                const div = document.createElement('div');
-                div.className = 'flex items-center justify-between p-2.5 rounded-2xl bg-white/5 border border-white/5';
-                div.innerHTML = `
-                    <div class="flex items-center space-x-2.5">
-                        <div class="w-9 h-9 rounded-full bg-indigo-500/20 text-indigo-300 flex items-center justify-center font-bold text-xs border border-indigo-500/30">
-                            ${u.firstname[0]}
-                        </div>
-                        <div>
-                            <h4 class="text-xs font-semibold text-white">${u.firstname} ${u.lastname}</h4>
-                            <span class="text-[10px] text-gray-400">@${k}</span>
-                        </div>
-                    </div>
-                    <button onclick="sendFriendRequest('${k}')" class="px-3 py-1 bg-white/10 hover:bg-white/20 text-cyan-300 rounded-lg text-[10px] font-semibold border border-cyan-500/30">Do'stlik jo'natish</button>
-                `;
-                list.appendChild(div);
-            });
-        }
-
         function acceptFriendRequest(senderNick) {
-            const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER') || 'fayzillo_009';
+            const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER');
             
             if (!friendsDB[activeUserKey]) friendsDB[activeUserKey] = { friends: [], requests: [] };
             if (!friendsDB[senderNick]) friendsDB[senderNick] = { friends: [], requests: [] };
 
-            // Add each other as friends
             friendsDB[activeUserKey].friends.push(senderNick);
             friendsDB[senderNick].friends.push(activeUserKey);
 
-            // Remove from requests list
             friendsDB[activeUserKey].requests = friendsDB[activeUserKey].requests.filter(r => r !== senderNick);
 
             localStorage.setItem('fapp_friends_db', JSON.stringify(friendsDB));
             loadProfileData();
             switchFriendsTab('friends');
+            if (!document.getElementById('public-profile-modal').classList.contains('hidden')) {
+                openPublicProfileModal(senderNick);
+            }
         }
 
         function sendFriendRequest(targetNick) {
             if (!friendsDB[targetNick]) friendsDB[targetNick] = { friends: [], requests: [] };
-            const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER') || 'fayzillo_009';
+            const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER');
 
             if (!friendsDB[targetNick].requests.includes(activeUserKey)) {
                 friendsDB[targetNick].requests.push(activeUserKey);
                 localStorage.setItem('fapp_friends_db', JSON.stringify(friendsDB));
             }
             alert(`Do'stlik so'rovi @${targetNick} ga jo'natildi!`);
+            renderAccountSearchResults();
+            if (!document.getElementById('public-profile-modal').classList.contains('hidden')) {
+                openPublicProfileModal(targetNick);
+            }
         }
 
         function openAddPostModal() {
@@ -983,7 +1059,7 @@
             const type = document.getElementById('post-type').value;
             const url = document.getElementById('post-url').value;
             const caption = document.getElementById('post-caption').value;
-            const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER') || 'fayzillo_009';
+            const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER');
 
             postsDB.unshift({
                 id: Date.now(),
@@ -997,6 +1073,16 @@
             localStorage.setItem('fapp_posts_db', JSON.stringify(postsDB));
             closeAddPostModal();
             loadProfileData();
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('F_APP_LOGGED_USER');
+            document.getElementById('settings-screen').classList.add('hidden');
+            document.getElementById('home-screen').classList.add('hidden');
+            document.getElementById('profile-screen').classList.add('hidden');
+            document.getElementById('search-users-screen').classList.add('hidden');
+            document.getElementById('bottom-nav').classList.add('hidden');
+            document.getElementById('auth-screen').classList.remove('hidden');
         }
 
         function switchAuthTab(tab) {
@@ -1072,7 +1158,6 @@
             }
         }
 
-        // SIGN UP HANDLER
         function handleSignUp(e) {
             e.preventDefault();
             clearAlert();
@@ -1103,7 +1188,6 @@
             usersDB[nickname] = { firstname, lastname, age, gender, password };
             localStorage.setItem('fapp_users', JSON.stringify(usersDB));
 
-            // Save login session immediately
             localStorage.setItem('F_APP_LOGGED_USER', nickname);
 
             showAlert('Ro\'yxatdan muvaffaqiyatli o\'tdingiz! Kirilmoqda...', false);
@@ -1113,7 +1197,6 @@
             }, 1000);
         }
 
-        // LOG IN HANDLER
         function handleLogin(e) {
             e.preventDefault();
             clearAlert();
@@ -1132,10 +1215,7 @@
                 return;
             }
 
-            // Save session to prevent asking again
             localStorage.setItem('F_APP_LOGGED_USER', nickname);
-
-            // Launch Home Screen
             document.getElementById('auth-screen').classList.add('hidden');
             launchHomeScreen();
         }
@@ -1148,7 +1228,6 @@
             fetchExchangeRates();
         }
 
-        // REAL-TIME CURRENCY RATES
         async function fetchExchangeRates() {
             try {
                 const res = await fetch('https://open.er-api.com/v6/latest/USD');
@@ -1178,7 +1257,6 @@
             }
         }
 
-        // REGIONAL UZBEKISTON WEATHER WITH HOURLY FORECAST
         async function fetchWeatherForRegion() {
             const regionKey = document.getElementById('region-selector').value;
             const regionData = uzbekistanRegions[regionKey] || uzbekistanRegions.shahrixon;
@@ -1194,7 +1272,6 @@
                     const code = data.current_weather.weathercode;
                     document.getElementById('weather-condition').innerText = getWeatherText(code);
 
-                    // Render 24-hour forecast
                     if (data.hourly && data.hourly.temperature_2m) {
                         const container = document.getElementById('hourly-forecast-container');
                         container.innerHTML = '';
@@ -1224,7 +1301,7 @@
 
         function getWeatherText(code) {
             if (code === 0) return 'Ochiq havo';
-            if (code <= 3) return 'Bultli';
+            if (code <= 3) return 'Bulutli';
             if (code <= 65) return 'Yomg\'ir';
             if (code <= 80) return 'Qor';
             return 'Ochiq';
