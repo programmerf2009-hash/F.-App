@@ -10,17 +10,13 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
                         navy: {
                             base: '#07111F',
                             deep: '#071A33'
-                        },
-                        gold: {
-                            light: '#FFF8E7',
-                            card: 'rgba(255, 235, 190, 0.12)',
-                            accent: '#D4AF37'
                         }
                     }
                 }
@@ -30,14 +26,19 @@
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #090314;
-            color: #ffffff;
             margin: 0;
             padding: 0;
             overflow-x: hidden;
+            transition: background-color 0.3s, color 0.3s;
         }
 
-        .cosmic-bg {
+        /* Dark Mode Theme */
+        body.dark {
+            background-color: #090314;
+            color: #ffffff;
+        }
+
+        .dark .cosmic-bg {
             background: 
                 radial-gradient(circle at 50% 20%, rgba(147, 51, 234, 0.3) 0%, transparent 55%),
                 radial-gradient(circle at 80% 60%, rgba(59, 130, 246, 0.25) 0%, transparent 50%),
@@ -45,34 +46,70 @@
                 linear-gradient(180deg, #070b19 0%, #0d1527 50%, #060913 100%);
         }
 
-        .glass-panel {
+        .dark .glass-panel {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.12);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
 
-        .glass-card {
+        .dark .glass-card {
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .glass-input {
+        .dark .glass-input {
             background: rgba(255, 255, 255, 0.07);
             border: 1px solid rgba(255, 255, 255, 0.18);
-            backdrop-filter: blur(10px);
             color: white;
-            transition: all 0.3s ease;
         }
+
+        /* Light Mode Theme */
+        body.light {
+            background-color: #f0f4f8;
+            color: #0f172a;
+        }
+
+        .light .cosmic-bg {
+            background: 
+                radial-gradient(circle at 50% 20%, rgba(147, 51, 234, 0.08) 0%, transparent 55%),
+                radial-gradient(circle at 80% 60%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+                linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+
+        .light .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
+        }
+
+        .light .glass-card {
+            background: #ffffff;
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+
+        .light .glass-input {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            color: #0f172a;
+        }
+
+        .light .text-white { color: #0f172a !important; }
+        .light .text-gray-300 { color: #334155 !important; }
+        .light .text-gray-400 { color: #64748b !important; }
+        .light .text-cyan-300 { color: #0284c7 !important; }
+        .light .text-purple-300 { color: #7e22ce !important; }
+        .light .text-amber-300 { color: #d97706 !important; }
 
         .glass-input:focus {
             outline: none;
             border-color: #38bdf8;
             box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
-            background: rgba(255, 255, 255, 0.12);
         }
 
         @keyframes auraPulse {
@@ -84,16 +121,11 @@
             animation: auraPulse 5s ease-in-out infinite;
         }
 
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="min-h-screen w-screen cosmic-bg relative select-none overflow-x-hidden flex flex-col items-center justify-start p-0 sm:p-4">
+<body id="app-body" class="dark min-h-screen w-screen cosmic-bg relative select-none overflow-x-hidden flex flex-col items-center justify-start p-0 sm:p-4">
 
     <!-- Background glow elements -->
     <div class="fixed w-[300px] h-[300px] sm:w-[500px] sm:h-[500px] bg-purple-600/20 rounded-full blur-[120px] animate-aura pointer-events-none top-0 left-1/2 -translate-x-1/2"></div>
@@ -343,7 +375,7 @@
             </section>
         </div>
 
-        <!-- ==================== SEARCH / ACCOUNTS TAB (4TH BOT NAV / TAB) ==================== -->
+        <!-- ==================== SEARCH / ACCOUNTS TAB ==================== -->
         <div id="search-users-screen" class="hidden w-full flex flex-col pt-4 px-3 sm:px-0">
             <h2 class="text-lg font-bold text-white mb-3 flex items-center gap-2">
                 <i data-lucide="user-search" class="w-5 h-5 text-cyan-400"></i>
@@ -358,7 +390,7 @@
 
             <!-- Search Results Container -->
             <div id="account-search-results" class="space-y-3">
-                <!-- Dynamically populated -->
+                <!-- Dynamically populated without any fake accounts -->
             </div>
         </div>
 
@@ -424,7 +456,7 @@
                 </div>
 
                 <!-- User Personal Attributes -->
-                <div class="mt-3.5 space-y-1.5 border-t border-white/10 pt-3">
+                <div class="mt-3.5 space-y-2 border-t border-white/10 pt-3">
                     <h3 id="profile-fullname" class="text-xs font-bold text-white">Ism Familiya</h3>
                     
                     <p id="profile-occupation-badge" class="text-[11px] font-medium text-cyan-300 flex items-center gap-1.5">
@@ -435,9 +467,14 @@
                         <i data-lucide="quote" class="w-3 h-3 text-amber-400"></i> "<span id="profile-motto">Shior kiritilmagan</span>"
                     </p>
 
-                    <p id="profile-music-box" class="text-[11px] text-purple-300 flex items-center gap-1.5">
-                        <i data-lucide="music" class="w-3 h-3 text-purple-400"></i> <span id="profile-music">Sevimli qo'shiq kiritilmagan</span>
-                    </p>
+                    <!-- Real Audio Player Section -->
+                    <div id="profile-music-box" class="mt-2 p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20">
+                        <div class="flex items-center gap-1.5 mb-1.5">
+                            <i data-lucide="music" class="w-3.5 h-3.5 text-purple-400"></i>
+                            <span id="profile-music-title" class="text-[11px] font-semibold text-purple-300">Musiqa yuklanmagan</span>
+                        </div>
+                        <audio id="profile-audio-player" controls class="w-full h-8 hidden rounded-lg"></audio>
+                    </div>
 
                     <p id="profile-bio-box" class="text-[11px] text-gray-300 mt-1 flex items-start gap-1.5">
                         <i data-lucide="info" class="w-3 h-3 text-gray-400 mt-0.5"></i> <span id="profile-bio">O'zi haqida ma'lumot yo'q</span>
@@ -479,49 +516,98 @@
                     <i data-lucide="camera" class="w-6 h-6"></i>
                 </div>
                 <p class="text-xs font-medium text-gray-400">Hozircha postlar yo'q</p>
-                <p class="text-[10px] text-gray-500 mt-0.5">Rasm yoki video ulashish uchun + tugmasini bosing</p>
+                <p class="text-[10px] text-gray-500 mt-0.5">Kompyuterdan rasm yoki video yuklash uchun + tugmasini bosing</p>
             </div>
         </div>
 
-        <!-- ==================== SETTINGS SCREEN ==================== -->
-        <div id="settings-screen" class="hidden w-full flex flex-col pt-4 px-3 sm:px-0">
-            <h2 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+        <!-- ==================== COMPLETE SETTINGS SCREEN ==================== -->
+        <div id="settings-screen" class="hidden w-full flex flex-col pt-4 px-3 sm:px-0 space-y-4 pb-12">
+            <h2 class="text-lg font-bold text-white mb-2 flex items-center gap-2">
                 <i data-lucide="sliders" class="w-5 h-5 text-cyan-400"></i>
-                Ixtiroxiy Sozlamalar
+                Ilovaning Barcha Sozlamalari
             </h2>
 
-            <form onsubmit="handleSaveSettings(event)" class="space-y-4 glass-card rounded-2xl p-4 border border-white/10">
-                <div>
-                    <label class="block text-xs font-medium text-gray-300 mb-1">Kasbingiz / Faoliyatingiz</label>
-                    <input type="text" id="setting-occupation" placeholder="Masalan: Dasturchi, Talaba, Shifokor..." class="w-full glass-input rounded-xl py-2.5 px-3 text-xs">
+            <!-- 1. APPEARANCE & THEME SETTINGS -->
+            <div class="glass-card rounded-2xl p-4 border border-white/10">
+                <h3 class="text-xs font-bold text-cyan-300 uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <i data-lucide="palette" class="w-4 h-4"></i> Tashqi Ko'rinish
+                </h3>
+                <div class="flex items-center justify-between py-2 border-b border-white/5">
+                    <div>
+                        <span class="text-xs font-semibold text-white block">Mavzu (Theme)</span>
+                        <span class="text-[10px] text-gray-400">Qorong'u yoki yorug' rejimni tanlang</span>
+                    </div>
+                    <button onclick="toggleTheme()" id="theme-toggle-btn" class="px-3 py-1.5 glass-input rounded-xl text-xs font-medium text-amber-300 flex items-center gap-1.5">
+                        <i data-lucide="moon" class="w-3.5 h-3.5"></i> Dark Mode
+                    </button>
                 </div>
-
-                <div>
-                    <label class="block text-xs font-medium text-gray-300 mb-1">Hayotdagi shioringiz</label>
-                    <input type="text" id="setting-motto" placeholder="Masalan: Harakatda barakat..." class="w-full glass-input rounded-xl py-2.5 px-3 text-xs">
+                <div class="flex items-center justify-between py-2 mt-2">
+                    <div>
+                        <span class="text-xs font-semibold text-white block">Ilova Tili (Language)</span>
+                        <span class="text-[10px] text-gray-400">Mavjud tillar ro'yxati</span>
+                    </div>
+                    <select id="app-language" onchange="changeLanguage(this.value)" class="glass-input rounded-xl py-1 px-2 text-xs bg-navy-base text-white">
+                        <option value="uz">O'zbekcha</option>
+                        <option value="ru">Русский</option>
+                        <option value="en">English</option>
+                    </select>
                 </div>
+            </div>
 
-                <div>
-                    <label class="block text-xs font-medium text-gray-300 mb-1">Sevimli musiqangiz / ijrochi</label>
-                    <input type="text" id="setting-music" placeholder="Masalan: Konsta - O'zbekistonlik..." class="w-full glass-input rounded-xl py-2.5 px-3 text-xs">
+            <!-- 2. PROFILE EDITING -->
+            <div class="glass-card rounded-2xl p-4 border border-white/10">
+                <h3 class="text-xs font-bold text-cyan-300 uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <i data-lucide="user-check" class="w-4 h-4"></i> Profil Ma'lumotlarini Tahrirlash
+                </h3>
+                <form onsubmit="handleSaveSettings(event)" class="space-y-3">
+                    <div>
+                        <label class="block text-xs text-gray-300 mb-1">Profil Rasmi (Kompyuterdan fayl yuklash)</label>
+                        <input type="file" id="setting-avatar-file" accept="image/*" class="w-full glass-input rounded-xl py-2 px-3 text-xs text-gray-300 cursor-pointer">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-gray-300 mb-1">Musiqa yuklash (.mp3 / audio fayl)</label>
+                        <input type="file" id="setting-music-file" accept="audio/*" class="w-full glass-input rounded-xl py-2 px-3 text-xs text-gray-300 cursor-pointer">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-gray-300 mb-1">Kasbingiz / Faoliyatingiz</label>
+                        <input type="text" id="setting-occupation" placeholder="Masalan: Dasturchi, Talaba..." class="w-full glass-input rounded-xl py-2.5 px-3 text-xs">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-gray-300 mb-1">Hayotdagi shioringiz</label>
+                        <input type="text" id="setting-motto" placeholder="Masalan: Harakatda barakat..." class="w-full glass-input rounded-xl py-2.5 px-3 text-xs">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-gray-300 mb-1">O'zingiz haqida ma'lumot</label>
+                        <textarea id="setting-bio" rows="2" placeholder="Qiziqishlaringiz..." class="w-full glass-input rounded-xl py-2.5 px-3 text-xs resize-none"></textarea>
+                    </div>
+
+                    <button type="submit" class="w-full py-3 bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 text-white font-bold rounded-xl text-xs shadow-lg shadow-cyan-600/30 active:scale-95 transition-all">
+                        Profil va fayllarni saqlash
+                    </button>
+                </form>
+            </div>
+
+            <!-- 3. NOTIFICATIONS & PRIVACY -->
+            <div class="glass-card rounded-2xl p-4 border border-white/10 space-y-3">
+                <h3 class="text-xs font-bold text-cyan-300 uppercase tracking-wider flex items-center gap-2">
+                    <i data-lucide="shield" class="w-4 h-4"></i> Bildirishnomalar va Maxfiylik
+                </h3>
+                <div class="flex items-center justify-between py-1">
+                    <span class="text-xs text-white">Yangi do'stlik bildirishnomalari</span>
+                    <input type="checkbox" checked class="w-4 h-4 accent-cyan-500 rounded cursor-pointer">
                 </div>
-
-                <div>
-                    <label class="block text-xs font-medium text-gray-300 mb-1">O'zingiz haqida ma'lumot</label>
-                    <textarea id="setting-bio" rows="3" placeholder="Qiziqishlaringiz, maqsadlaringiz va hakazolar..." class="w-full glass-input rounded-xl py-2.5 px-3 text-xs resize-none"></textarea>
+                <div class="flex items-center justify-between py-1">
+                    <span class="text-xs text-white">Profilni faqat do'stlarga ko'rsatish</span>
+                    <input type="checkbox" checked class="w-4 h-4 accent-cyan-500 rounded cursor-pointer">
                 </div>
+            </div>
 
-                <div>
-                    <label class="block text-xs font-medium text-gray-300 mb-1">Profil rasmi havolasi (URL)</label>
-                    <input type="url" id="setting-avatar" placeholder="https://..." class="w-full glass-input rounded-xl py-2.5 px-3 text-xs">
-                </div>
-
-                <button type="submit" class="w-full py-3 bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 text-white font-bold rounded-xl text-xs shadow-lg shadow-cyan-600/30 active:scale-95 transition-all">
-                    Sozlamalarni saqlash
-                </button>
-            </form>
-
-            <button onclick="handleLogout()" class="w-full mt-4 py-3 bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 font-semibold rounded-xl text-xs transition-all flex items-center justify-center gap-2">
+            <!-- 4. LOGOUT BUTTON -->
+            <button onclick="handleLogout()" class="w-full py-3 bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 font-semibold rounded-xl text-xs transition-all flex items-center justify-center gap-2">
                 <i data-lucide="log-out" class="w-4 h-4"></i>
                 Hisobdan chiqish
             </button>
@@ -554,13 +640,13 @@
             </div>
         </div>
 
-        <!-- ==================== ADD POST MODAL ==================== -->
+        <!-- ==================== ADD POST MODAL (LOCAL FILE UPLOAD) ==================== -->
         <div id="add-post-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
             <div class="glass-panel w-full max-w-sm rounded-3xl p-5 border border-white/15">
                 <div class="flex items-center justify-between pb-3 border-b border-white/10">
                     <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                        <i data-lucide="image" class="w-4 h-4 text-purple-400"></i>
-                        Yangi Post Ulashish
+                        <i data-lucide="upload-cloud" class="w-4 h-4 text-purple-400"></i>
+                        Fayl Yuklash (Kompyuterdan)
                     </h3>
                     <button onclick="closeAddPostModal()" class="text-gray-400 hover:text-white p-1">
                         <i data-lucide="x" class="w-5 h-5"></i>
@@ -569,16 +655,16 @@
 
                 <form onsubmit="handleCreatePost(event)" class="space-y-3 mt-4">
                     <div>
-                        <label class="block text-xs text-gray-300 mb-1">Fayl turi</label>
-                        <select id="post-type" class="w-full glass-input rounded-xl py-2 px-3 text-xs bg-navy-base text-white">
-                            <option value="photo">Rasm</option>
-                            <option value="video">Video</option>
+                        <label class="block text-xs text-gray-300 mb-1">Post turi</label>
+                        <select id="post-type" onchange="updateFileTypeAccept()" class="w-full glass-input rounded-xl py-2 px-3 text-xs bg-navy-base text-white">
+                            <option value="photo">Rasm (.png, .jpg)</option>
+                            <option value="video">Video (.mp4, .webm)</option>
                         </select>
                     </div>
 
                     <div>
-                        <label class="block text-xs text-gray-300 mb-1">Rasm / Video Havolasi (URL)</label>
-                        <input type="url" id="post-url" required placeholder="https://images.unsplash.com/..." class="w-full glass-input rounded-xl py-2 px-3 text-xs">
+                        <label class="block text-xs text-gray-300 mb-1">Faylni tanlang (Kompyuteringizdan)</label>
+                        <input type="file" id="post-file-input" required accept="image/*" class="w-full glass-input rounded-xl py-2 px-3 text-xs text-gray-300 cursor-pointer">
                     </div>
 
                     <div>
@@ -587,7 +673,7 @@
                     </div>
 
                     <button type="submit" class="w-full py-2.5 px-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl shadow-md text-xs">
-                        Ulashish
+                        Chop etish
                     </button>
                 </form>
             </div>
@@ -595,31 +681,26 @@
 
         <!-- ==================== BOTTOM NAVIGATION (5 TABS) ==================== -->
         <nav id="bottom-nav" class="hidden fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md sm:max-w-xl glass-panel border-t border-white/10 px-4 py-2.5 z-50 flex items-center justify-between">
-            <!-- 1. HOME -->
             <button id="nav-btn-home" onclick="switchTab('home')" class="flex flex-col items-center text-cyan-400 transition-all">
                 <i data-lucide="home" class="w-5 h-5"></i>
                 <span class="text-[10px] font-bold mt-1">Home</span>
             </button>
 
-            <!-- 2. PROFILE -->
             <button id="nav-btn-profile" onclick="switchTab('profile')" class="flex flex-col items-center text-gray-400 hover:text-white transition-all">
                 <i data-lucide="user" class="w-5 h-5"></i>
                 <span class="text-[10px] font-medium mt-1">Profil</span>
             </button>
 
-            <!-- 3. MESSAGES -->
             <button id="nav-btn-chats" onclick="switchTab('chats')" class="flex flex-col items-center text-gray-500 hover:text-gray-300 transition-all">
                 <i data-lucide="message-square" class="w-5 h-5"></i>
                 <span class="text-[10px] font-medium mt-1">Xabarlar</span>
             </button>
 
-            <!-- 4. ACCOUNTS SEARCH (YANGI QO'SHILDI) -->
             <button id="nav-btn-search-users" onclick="switchTab('search-users')" class="flex flex-col items-center text-gray-400 hover:text-white transition-all">
                 <i data-lucide="user-search" class="w-5 h-5"></i>
                 <span class="text-[10px] font-medium mt-1">Qidiruv</span>
             </button>
 
-            <!-- 5. SETTINGS -->
             <button id="nav-btn-settings" onclick="switchTab('settings')" class="flex flex-col items-center text-gray-400 hover:text-white transition-all">
                 <i data-lucide="settings" class="w-5 h-5"></i>
                 <span class="text-[10px] font-medium mt-1">Sozlamalar</span>
@@ -636,7 +717,7 @@
         let friendsDB = JSON.parse(localStorage.getItem('fapp_friends_db')) || {};
         let postsDB = JSON.parse(localStorage.getItem('fapp_posts_db')) || [];
 
-        // Users database without fake default accounts
+        // STRICT REQUIREMENT: ZERO FAKE ACCOUNTS IN DATABASE
         let usersDB = JSON.parse(localStorage.getItem('fapp_users')) || {};
 
         lucide.createIcons();
@@ -678,7 +759,6 @@
         function switchTab(tabName) {
             currentActiveTab = tabName;
             
-            // Hide all main tab views
             document.getElementById('home-screen').classList.add('hidden');
             document.getElementById('profile-screen').classList.add('hidden');
             document.getElementById('settings-screen').classList.add('hidden');
@@ -687,9 +767,7 @@
             const navButtons = ['home', 'profile', 'chats', 'search-users', 'settings'];
             navButtons.forEach(btn => {
                 const navBtn = document.getElementById(`nav-btn-${btn}`);
-                if (navBtn) {
-                    navBtn.className = "flex flex-col items-center text-gray-400 hover:text-white transition-all";
-                }
+                if (navBtn) navBtn.className = "flex flex-col items-center text-gray-400 hover:text-white transition-all";
             });
 
             if (tabName === 'profile') {
@@ -711,6 +789,25 @@
             lucide.createIcons();
         }
 
+        function toggleTheme() {
+            const body = document.getElementById('app-body');
+            const themeBtn = document.getElementById('theme-toggle-btn');
+            if (body.classList.contains('dark')) {
+                body.classList.remove('dark');
+                body.classList.add('light');
+                themeBtn.innerHTML = `<i data-lucide="sun" class="w-3.5 h-3.5 text-amber-500"></i> Light Mode`;
+            } else {
+                body.classList.remove('light');
+                body.classList.add('dark');
+                themeBtn.innerHTML = `<i data-lucide="moon" class="w-3.5 h-3.5"></i> Dark Mode`;
+            }
+            lucide.createIcons();
+        }
+
+        function changeLanguage(lang) {
+            alert(`Ilova tili o'zgartirildi: ${lang.toUpperCase()}`);
+        }
+
         function loadProfileData() {
             const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER');
             if (!activeUserKey || !usersDB[activeUserKey]) return;
@@ -722,8 +819,19 @@
 
             document.getElementById('profile-occupation').innerText = user.occupation || "Kasbi ko'rsatilmagan";
             document.getElementById('profile-motto').innerText = user.motto || "Shior kiritilmagan";
-            document.getElementById('profile-music').innerText = user.music || "Sevimli qo'shiq kiritilmagan";
             document.getElementById('profile-bio').innerText = user.bio || "O'zi haqida ma'lumot yo'q";
+
+            // Real Audio Player handling
+            const audioPlayer = document.getElementById('profile-audio-player');
+            const musicTitle = document.getElementById('profile-music-title');
+            if (user.musicData) {
+                musicTitle.innerText = user.musicName || "Yuklangan Musiqa";
+                audioPlayer.src = user.musicData;
+                audioPlayer.classList.remove('hidden');
+            } else {
+                musicTitle.innerText = "Musiqa yuklanmagan";
+                audioPlayer.classList.add('hidden');
+            }
 
             if (user.avatarUrl) {
                 document.getElementById('profile-avatar').innerHTML = `<img src="${user.avatarUrl}" class="w-full h-full object-cover rounded-full">`;
@@ -752,28 +860,52 @@
             if (!activeUserKey || !usersDB[activeUserKey]) return;
 
             const user = usersDB[activeUserKey];
-
             document.getElementById('setting-occupation').value = user.occupation || '';
             document.getElementById('setting-motto').value = user.motto || '';
-            document.getElementById('setting-music').value = user.music || '';
             document.getElementById('setting-bio').value = user.bio || '';
-            document.getElementById('setting-avatar').value = user.avatarUrl || '';
         }
 
-        function handleSaveSettings(e) {
+        async function handleSaveSettings(e) {
             e.preventDefault();
             const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER');
             if (!activeUserKey || !usersDB[activeUserKey]) return;
 
-            usersDB[activeUserKey].occupation = document.getElementById('setting-occupation').value.trim();
-            usersDB[activeUserKey].motto = document.getElementById('setting-motto').value.trim();
-            usersDB[activeUserKey].music = document.getElementById('setting-music').value.trim();
-            usersDB[activeUserKey].bio = document.getElementById('setting-bio').value.trim();
-            usersDB[activeUserKey].avatarUrl = document.getElementById('setting-avatar').value.trim();
+            const occupation = document.getElementById('setting-occupation').value.trim();
+            const motto = document.getElementById('setting-motto').value.trim();
+            const bio = document.getElementById('setting-bio').value.trim();
+
+            usersDB[activeUserKey].occupation = occupation;
+            usersDB[activeUserKey].motto = motto;
+            usersDB[activeUserKey].bio = bio;
+
+            // Handle Local File Avatar
+            const avatarFileInput = document.getElementById('setting-avatar-file');
+            if (avatarFileInput.files && avatarFileInput.files[0]) {
+                const avatarData = await readFileAsBase64(avatarFileInput.files[0]);
+                usersDB[activeUserKey].avatarUrl = avatarData;
+            }
+
+            // Handle Local Audio Music File
+            const musicFileInput = document.getElementById('setting-music-file');
+            if (musicFileInput.files && musicFileInput.files[0]) {
+                const musicFile = musicFileInput.files[0];
+                const musicData = await readFileAsBase64(musicFile);
+                usersDB[activeUserKey].musicData = musicData;
+                usersDB[activeUserKey].musicName = musicFile.name;
+            }
 
             localStorage.setItem('fapp_users', JSON.stringify(usersDB));
-            alert("Sozlamalar saqlandi!");
+            alert("Profil va sozlamalar muvaffaqiyatli saqlandi!");
             switchTab('profile');
+        }
+
+        function readFileAsBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+                reader.readAsDataURL(file);
+            });
         }
 
         function renderAccountSearchResults() {
@@ -791,7 +923,7 @@
             });
 
             if (filteredKeys.length === 0) {
-                resultsContainer.innerHTML = `<p class="text-xs text-gray-400 text-center py-8">Hech qanday profil topilmadi</p>`;
+                resultsContainer.innerHTML = `<p class="text-xs text-gray-400 text-center py-8">Hech qanday real profil topilmadi</p>`;
                 return;
             }
 
@@ -821,7 +953,7 @@
                             `<span class="text-[10px] px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Do'stsiz</span>` :
                           hasPendingReq ?
                             `<span class="text-[10px] px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30">Yuborilgan</span>` :
-                            `<button onclick="sendFriendRequest('${k}')" class="px-3 py-1.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-semibold rounded-xl text-[10px] shadow-md">Do'stlik taklifi</button>`
+                            `<button onclick="sendFriendRequest('${k}')" class="px-3 py-1.5 bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-semibold rounded-xl text-[10px] shadow-md">Do'stlik taklifi</button>`
                         }
                     </div>
                 `;
@@ -852,15 +984,12 @@
                     <span class="text-xs text-cyan-300">@${targetNick}</span>
                     <span class="text-[10px] text-gray-400 mt-1">${targetFriends.length} ta do'sti bor</span>
 
-                    <!-- Additional Details -->
                     <div class="w-full space-y-2 mt-4 text-left glass-card p-3 rounded-xl border border-white/10">
                         <p class="text-[11px] text-cyan-300 flex items-center gap-1.5"><i data-lucide="briefcase" class="w-3.5 h-3.5"></i> Kasbi: ${targetUser.occupation || "Kiritilmagan"}</p>
                         <p class="text-[11px] text-amber-300 flex items-center gap-1.5"><i data-lucide="quote" class="w-3.5 h-3.5"></i> Shiori: "${targetUser.motto || "Kiritilmagan"}"</p>
-                        <p class="text-[11px] text-purple-300 flex items-center gap-1.5"><i data-lucide="music" class="w-3.5 h-3.5"></i> Qo'shiq: ${targetUser.music || "Kiritilmagan"}</p>
                         <p class="text-[11px] text-gray-300 flex items-start gap-1.5"><i data-lucide="info" class="w-3.5 h-3.5 mt-0.5"></i> Haqida: ${targetUser.bio || "Ma'lumot yo'q"}</p>
                     </div>
 
-                    <!-- Privacy Protected Media & Friends Section -->
                     <div class="w-full mt-4">
                         ${isFriend ? `
                             <div class="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-center">
@@ -911,14 +1040,11 @@
                 
                 if (post.type === 'video') {
                     card.innerHTML = `
-                        <video src="${post.url}" class="w-full h-full object-cover"></video>
-                        <div class="absolute inset-0 bg-black/30 flex items-center justify-center">
-                            <i data-lucide="play-circle" class="w-8 h-8 text-white drop-shadow-md"></i>
-                        </div>
+                        <video src="${post.url}" class="w-full h-full object-cover" controls></video>
                     `;
                 } else {
                     card.innerHTML = `
-                        <img src="${post.url}" alt="Post" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.src='https://placehold.co/300x300/1e1e2d/ffffff?text=F+App'">
+                        <img src="${post.url}" alt="Post" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-2 flex items-end">
                             <span class="text-[9px] text-white line-clamp-1">${post.caption || ''}</span>
                         </div>
@@ -1046,6 +1172,12 @@
             }
         }
 
+        function updateFileTypeAccept() {
+            const type = document.getElementById('post-type').value;
+            const input = document.getElementById('post-file-input');
+            input.accept = type === 'video' ? 'video/*' : 'image/*';
+        }
+
         function openAddPostModal() {
             document.getElementById('add-post-modal').classList.remove('hidden');
         }
@@ -1054,18 +1186,25 @@
             document.getElementById('add-post-modal').classList.add('hidden');
         }
 
-        function handleCreatePost(e) {
+        async function handleCreatePost(e) {
             e.preventDefault();
             const type = document.getElementById('post-type').value;
-            const url = document.getElementById('post-url').value;
+            const fileInput = document.getElementById('post-file-input');
             const caption = document.getElementById('post-caption').value;
             const activeUserKey = localStorage.getItem('F_APP_LOGGED_USER');
+
+            if (!fileInput.files || !fileInput.files[0]) {
+                alert("Iltimos, faylni tanlang!");
+                return;
+            }
+
+            const fileUrl = await readFileAsBase64(fileInput.files[0]);
 
             postsDB.unshift({
                 id: Date.now(),
                 author: activeUserKey,
                 type,
-                url,
+                url: fileUrl,
                 caption,
                 date: 'Hozirgina'
             });
